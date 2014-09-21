@@ -19,9 +19,9 @@ function getSocialNetwork(base)
 	var tracer = 0;
 	for (var i = 0; i < 3; i++)	//Find friends two more times. Is a word in its own social network, as a friend of a friend ...?
 	{
+		var tempFriends = [];
 		for(; tracer<network.length;tracer++)
 		{
-			var tempFriends = [];
 			var friends = findFriends(network[tracer]);
 			for(var friend = 0; friend < friends.length; friend++)
 			{
@@ -31,7 +31,7 @@ function getSocialNetwork(base)
 				}
 			}
 		}
-		network.concat(tempFriends);
+		network = network.concat(tempFriends);
 	}
 	return network;
 }
