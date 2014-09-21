@@ -1,23 +1,27 @@
 var dictionary = [];
 function openDictionary()
 {
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "randomlist.txt",false)
-	xhr.onreadystatechange = function ()
+	if (dictionary == [])
 	{
-		if (this.readyState === 4)
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "randomlist.txt", false)
+		xhr.onreadystatechange = function ()
 		{
-			dictionary = this.responseText.split("\n");
-		}
-	};
-	xhr.send();
+			if (this.readyState === 4)
+			{
+				dictionary = this.responseText.split("\n");
+			}
+		};
+		xhr.send();
+	}
 }
 
 function getSocialNetwork(base)
 {
-	var network = [base];
+	openDictionary();
+	var network = findFriends(network[tracer]);
 	var tracer = 0;
-	for (var i = 0; i < 3; i++)	//Find friends two more times. Is a word in its own social network, as a friend of a friend ...?
+	for (var i = 0; i < 2; i++)	//Find friends two more times. Is a word in its own social network, as a friend of a friend ...?
 	{
 		var tempFriends = [];
 		for(; tracer<network.length;tracer++)
