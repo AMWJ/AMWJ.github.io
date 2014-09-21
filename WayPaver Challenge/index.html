@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>
+Find Friends
+</title>
+<script type="text/javascript" src="networker.js">
+</script>
+</head>
+<body>
+<input type="text" id="first" />
+<input type="text" id="second" />
+<div id="result">Correct</div>
+	<script type="text/javascript">
+		function onchange(changed)
+		{
+			var first = document.getElementById("first").value;
+			var second = document.getElementById("second").value;
+			var result = document.getElementById("result");
+			openDictionary();
+		}
+		var f = document.getElementById("first");
+		f.addEventListener("change", onchange);
+		var f = document.getElementById("second");
+		f.addEventListener("change", onchange);
+	</script>
+</body>
+</html>
