@@ -14,7 +14,7 @@ function openDictionary()
 }
 
 
-function findFriends(base, dictionary)
+function findFriends(base)
 {
 	var ret=[]
 	for (var i = 0; i < dictionary.length; i++)
