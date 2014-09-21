@@ -13,6 +13,26 @@ function openDictionary()
 	xhr.send();
 }
 
+function getSocialNetwork(base)
+{
+	var network = findFriends(base);
+	var tracer = 0;
+	for (var i = 0; i < 2; i++)	//Find friends two more times. That the base word is not its own friend makes it harder to remove the above line and iterate 3 times.
+	{
+		for(; tracer<network.length;tracer++)
+		{
+			var friends = findFriends(network[tracer]);
+			for(var friend = 0; friend < friends.length; friend++)
+			{
+				if (!(friend in network))
+				{
+					network.push(friend);
+				}
+			}
+		}
+	}
+	return ret;
+}
 
 function findFriends(base)
 {
