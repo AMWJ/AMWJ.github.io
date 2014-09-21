@@ -1,7 +1,7 @@
 var dictionary = [];
 function openDictionary()
 {
-	if (dictionary == [])
+	if (dictionary.length == 0)
 	{
 		var xhr = new XMLHttpRequest();
 		xhr.open("GET", "randomlist.txt", false)
@@ -15,27 +15,26 @@ function openDictionary()
 		xhr.send();
 	}
 }
-
+openDictionary();
 function getSocialNetwork(base)
 {
-	openDictionary();
-	var network = findFriends(network[tracer]);
+	var network = findFriends(base);
 	var tracer = 0;
 	for (var i = 0; i < 2; i++)	//Find friends two more times. Is a word in its own social network, as a friend of a friend ...?
 	{
 		var tempFriends = [];
-		for(; tracer<network.length;tracer++)
+		for(; tracer<network.length;tracer++)	//Traces through the list to find the friends of all the words added to the network that were not already checked.
 		{
 			var friends = findFriends(network[tracer]);
 			for(var friend = 0; friend < friends.length; friend++)
 			{
-				if (!(friends[friend] in network) && !(friends[friend] in tempFriends))
+				if (!(friends[friend] in network) && !(friends[friend] in tempFriends))	//Only add it to the network if it's not already in the network. (Or in the temporary list that will soon be added to the network.
 				{
-					tempFriends.push(friends[friend]);
+					tempFriends.push(friends[friend]);	//Important to have a separate list, or else tracer keeps going through the entire list, infinitely.
 				}
 			}
 		}
-		network = network.concat(tempFriends);
+		network = network.concat(tempFriends);	//Add the new found friends to the network.
 	}
 	return network;
 }
