@@ -1,3 +1,4 @@
+var dictionary = [];
 function openDictionary()
 {
 	var xhr = new XMLHttpRequest();
@@ -6,7 +7,7 @@ function openDictionary()
 	{
 		if (this.readyState === 4)
 		{
-			alert(this.response);
+			dictionary = this.responseText.split("\n");
 		}
 	};
 	xhr.send();
@@ -23,6 +24,7 @@ function findFriends(base, dictionary)
 			ret.append(dictionary[i]);
 		}
 	}
+	return ret;
 }
 function isFriend(base, acquaintance) //A word is not its own friend (As per definition).
 {
