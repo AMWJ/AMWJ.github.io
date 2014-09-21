@@ -21,15 +21,17 @@ function getSocialNetwork(base)
 	{
 		for(; tracer<network.length;tracer++)
 		{
+			var tempFriends = [];
 			var friends = findFriends(network[tracer]);
 			for(var friend = 0; friend < friends.length; friend++)
 			{
-				if (!(friends[friend] in network))
+				if (!(friends[friend] in network) && !(friends[friend] in tempFriends))
 				{
-					network.push(friends[friend]);
+					tempFriends.push(friends[friend]);
 				}
 			}
 		}
+		network.concat(tempFriends);
 	}
 	return network;
 }
