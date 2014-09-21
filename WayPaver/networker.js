@@ -15,23 +15,23 @@ function openDictionary()
 
 function getSocialNetwork(base)
 {
-	var network = findFriends(base);
+	var network = [base];
 	var tracer = 0;
-	for (var i = 0; i < 2; i++)	//Find friends two more times. That the base word is not its own friend makes it harder to remove the above line and iterate 3 times.
+	for (var i = 0; i < 3; i++)	//Find friends two more times. Is a word in its own social network, as a friend of a friend ...?
 	{
 		for(; tracer<network.length;tracer++)
 		{
 			var friends = findFriends(network[tracer]);
 			for(var friend = 0; friend < friends.length; friend++)
 			{
-				if (!(friend in network))
+				if (!(friends[friend] in network))
 				{
-					network.push(friend);
+					network.push(friends[friend]);
 				}
 			}
 		}
 	}
-	return ret;
+	return network;
 }
 
 function findFriends(base)
