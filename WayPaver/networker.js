@@ -2,7 +2,7 @@ var dictionary = [];
 function openDictionary()
 {
 	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "randomlist.txt")
+	xhr.open("GET", "randomlist.txt",false)
 	xhr.onreadystatechange = function ()
 	{
 		if (this.readyState === 4)
