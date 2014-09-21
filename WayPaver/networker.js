@@ -21,7 +21,7 @@ function findFriends(base)
 	{
 		if(isFriend(base,dictionary[i]))	//For each element of the dictionary, if it is a friend, add it to the dictionary.
 		{
-			ret.append(dictionary[i]);
+			ret.push(dictionary[i]);
 		}
 	}
 	return ret;
