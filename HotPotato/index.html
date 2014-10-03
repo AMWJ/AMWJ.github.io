@@ -5,15 +5,74 @@
 			Hot Potato
 		</title>
 		<script src="jquery-1.11.1.js"></script>
+		<script src="jquery.timeago.js"></script>
+		<script src="podHelper.js" type="text/javascript"></script>
 		<script type="text/javascript">
+		var interval=null;
+		$.timeago.settings.allowFuture = true;
+		$.timeago.settings.allowPast = false;
+
 		$(document).ready(function()
 		{
-			
+			$("#podIDInput").on("input",function()
+			{
+				setMainPod($("#podIDInput").prop("value"))
+			});
+			interval=setInterval(reload, 120);
 		});
+		function potatoListItem(potato)
+		{
+			var li=$("<li>").attr("id",potato.name)
+					 .append("<span class='potatoName'>")
+					 .append(": ")
+					 .append("<span class='timeleft'>")
+					 .append("/")
+					 .append("<span class='totalDuration'>")
+					 .append(". ")
+					 .append("<b>Send this potato to </b>")
+					 .append("<input class='receiver' type='text'></input><button class='sendOn'>Before it runs out!</button>");
+			li.children(".potatoName").text(potato.name);
+			li.children(".timeleft").text($.timeago((potato.timeCreated+potato.runoutDuration)*1000));
+			li.children(".totalDuration").text(potato.runoutDuration);
+			return li;
+		}
+		function updatePotatoList()
+		{
+			
+			for(potato in potatoes)
+			{
+				$("#currentPotatoes").html("").append(potatoListItem(potatoes[potato]));
+			}
+		}
+		function sendPotato(potato)
+		{
+			$("#currentPotatoes").html("").append(potatoListItem(potatoes[potato]));
+		}
 		</script>
 		<style type="text/css">
 		</style>
 	</head>
 	<body>
+		<div id="podID" style="position:fixed;right:0px">
+			<label for="podIDInput">POD ID:</label>
+			<input name="podIDInput" id="podIDInput" type="text"  />
+			<button id="loginButton">Login</button>
+		</div id="newPotato">
+			<label for="potatoName">New Potato Name:</label>
+			<input name="potatoName" type="text"  /><br>
+			<label for="potatoDuration">Time Duration (hours):</label>
+			<input name="potatoDuration" type="text"  />
+			<button>Create New Potato</button>
+		</div>
+		<div id="potatoList">
+			<ul id="currentPotatoes">
+				<li>
+			Kennebec, 30 min/4 hours. <b>Send this potato to </b><input type="text"></input><button>Before it runs out!</button>
+				</li>
+				<li>
+			Superior, 2 hours/3 hours. <b>Send this potato to </b><input type="text"></input><button>Before it runs out!</button>
+				</li>
+			</ul>
+		</div>
 	</body>
 </html>
