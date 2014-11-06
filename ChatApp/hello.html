@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<title>Cross With Me</title>
+		<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+		<script src="jquery.timeago.js"></script>
+		<script src="hello.js"></script>
+		<script src="http://crosscloud.org/0.1.1/crosscloud.js"></script>
+		<style>
+			body { 
+			  font-family: Arial; 
+			}
+			.note {
+			  margin: 0;
+			  padding-left: 2em;
+			  font-size: 85%;
+			  font-style: italic;
+			}
+			table {
+				border-width: 5px;
+			}
+			thead td {
+			  background: #ccc;
+			}
+			tbody tr th {
+			  border-bottom: 1px solid #ccc;
+			}
+			tbody tr:hover {
+			 background: #eee;
+			}
+			td, th {
+			 padding: 2px;
+			 padding-left: 6px
+			}
+		</style>
+	</head>
+	<body>
+		<div id="error">JS Not Running</div>
+		<div>
+			<h2>Cross With Me<br/><span style="font-size: 70%; color:gray;">Crosscloud Chatting Application Demo</span></h2>
+			<p class="note">
+				This is a chat application, based on code from the <a href="http://crosscloud.org/0.1.1/example/hello">Crosscloud Hello World Demo Application</a>.  The modifications were made by Ariel Jacobs.
+			</p>
+			<datalist id=recipients >
+			</datalist>
+			<p>
+				<label for="recipient">To</label>
+				<input id="recipient" list=recipients type="text" placeholder="Recipient" /><br/><br/>
+				<textarea id="message" type="text" placeholder="Message"></textarea>
+				<button id="send">Send!</button>
+			</p>
+			<p>Chat History:</p>
+			<div id="out">
+				<i>Waiting for query results...</i>
+			</div>
+		</div>
+	</body>
+</html>

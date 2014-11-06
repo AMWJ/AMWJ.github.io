@@ -2,6 +2,7 @@
 var etag=null;
 var mainPod="http://fakepods.com";
 var potatoes=[];
+var etag=null;
 function podURL(id) {
 	// temporary hack until we have a nice way for users to select their pod
 	//return "http://"+document.getElementById("username").value+".fakepods.com";
@@ -20,54 +21,85 @@ function setMainPod(id)
 }
 function reload(id) {
 
-	var request = new XMLHttpRequest();
 	var pod=mainPod;
 	if(id)
 	{
 		pod=podURL(id);
 	}
 	// just fetch everything, for now, since queries don't work yet
-	request.open("GET", pod+"/_active", true);
-	if (etag !== null) {
-		request.setRequestHeader("Wait-For-None-Match", etag);
-	}
-
-	request.onreadystatechange = function(e) {
-		if (request.readyState==4 && request.status==200) {
-    		handleResponse(request.responseText);
-    	}
-		if (request.readyState==4 && request.status==404) {
-    		console.log("hi");
-    	}
- 	}
-
-	request.send();
-}
-
-function handleResponse(responseText) {
-	potatoes=[];
-	var response=$.parseJSON(responseText);
-	for(var i=0;i<response.length;i++)
+	$.ajax(pod+"/_nearby", 
 	{
-		if(response[i].potato==1)
-		{
-			potatoes.push(
+		dataType: "json",
+		beforeSend: function(request) {
+			if(etag!== null)
+			{
+				request.setRequestHeader("Wait-For-None-Match", etag);
+			}
+		},
+		success: function(response) {
+			receivedPotatoes=[];
+			sentPotatoes=[];
+			currentPotatoes=[];
+			etag=response._etag;
+			for(var i=0;i<response.length;i++)
+			{
+				if(response[i].potato==1.0)
 				{
-					runoutDuration : response[i].countdown,
-					timeCreated : response[i].countdown,
-					name: response[i].name,
-					history: response[i].history
-				});
+					if(response[i].receiver==id)
+					{
+						receivedPotatoes.push(
+						{
+							sender: response[i].sender,
+							runoutDuration : response[i].duration,
+							timeSent : response[i].sent,
+							name: response[i].name,
+							receiver: response[i].receiver
+						});
+					}
+					else if(response[i].sender==id)
+					{
+						sentPotatoes.push(
+						{
+							sender: response[i].sender,
+							runoutDuration : response[i].duration,
+							timeSent : response[i].sent,
+							name: response[i].name,
+							receiver: response[i].receiver
+						});
+					}
+				}
+			}
+			for(var i=0;i<receivedPotatoes.length;i++)
+			{
+				var potato=receivedPotatoes[i];
+				for(var j=0;j<sentPotatoes.length;j++)
+				{
+					var found=false;
+					if(sentPotatoes[j].name==potato.name&&sentPotatoes[j].timeSent>potato.timeSent)
+					{
+						found=true;
+						break;
+					}
+				}
+				if(!found)
+				{
+					currentPotatoes.append(potato);
+				}
+			}
+			currentPotatoes.push({
+				runoutDuration : 30000,
+				timeSent : 1413300709,
+				name: "Test",
+				receiver: "ariel",
+				sender: "somebody"
+			});
+			updatePotatoList();
+			reload(id);
+
 		}
-	}
-	potatoes.push({
-		runoutDuration : 300,
-		timeCreated : 1412300709,
-		name: "Test",
-		history: {}
 	});
-	updatePotatoList();
 }
+
 
 function newmsg(object, id) {
 	var request = new XMLHttpRequest();

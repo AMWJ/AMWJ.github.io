@@ -8,17 +8,16 @@
 		<script src="jquery.timeago.js"></script>
 		<script src="podHelper.js" type="text/javascript"></script>
 		<script type="text/javascript">
-		var interval=null;
 		$.timeago.settings.allowFuture = true;
-		$.timeago.settings.allowPast = false;
-
+		$.timeago.settings.allowPast = true;
+		var potatoesInList=[];
 		$(document).ready(function()
 		{
 			$("#podIDInput").on("input",function()
 			{
 				setMainPod($("#podIDInput").prop("value"))
+				reload();
 			});
-			interval=setInterval(reload, 120);
 		});
 		function potatoListItem(potato)
 		{
@@ -26,27 +25,37 @@
 					 .append("<span class='potatoName'>")
 					 .append(": ")
 					 .append("<span class='timeleft'>")
-					 .append("/")
-					 .append("<span class='totalDuration'>")
-					 .append(". ")
-					 .append("<b>Send this potato to </b>")
-					 .append("<input class='receiver' type='text'></input><button class='sendOn'>Before it runs out!</button>");
+			if(potato.timeCreated+potato.runoutDuration>Date.now())
+			{
+				li.append("/")
+				  .append("<span class='totalDuration'>")
+				  .append(". ")
+				  .append("<b>Send this potato to </b>")
+				  .append("<input class='receiver' type='text'></input><button class='sendOn'>Before it runs out!</button>")
+				  .children(".totalDuration").text(potato.runoutDuration);
+			}
+			else
+			{
+				
+			}
 			li.children(".potatoName").text(potato.name);
-			li.children(".timeleft").text($.timeago((potato.timeCreated+potato.runoutDuration)*1000));
-			li.children(".totalDuration").text(potato.runoutDuration);
+			li.children(".timeleft").text($.timeago((potato.timeSent+potato.runoutDuration)*1000));
 			return li;
 		}
 		function updatePotatoList()
 		{
-			
-			for(potato in potatoes)
+			for(var i=0;i<currentPotatoes.length;i++)
 			{
-				$("#currentPotatoes").html("").append(potatoListItem(potatoes[potato]));
+				var potato=currentPotatoes[i]
+				if($("#currentPotatoes").children("#"+potato.name).length==0)
+				{
+					$("#currentPotatoes").html("").append(potatoListItem(potato));
+				}
 			}
 		}
 		function sendPotato(potato)
 		{
-			$("#currentPotatoes").html("").append(potatoListItem(potatoes[potato]));
+			$("#currentPotatoes").html("").append(potatoListItem(currentPotatoes[potato]));
 		}
 		</script>
 		<style type="text/css">
