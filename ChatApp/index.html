@@ -43,12 +43,18 @@
 			</p>
 			<datalist id=recipients >
 			</datalist>
-			<p>
+			<span>
 				<label for="recipient">To</label>
 				<input id="recipient" list=recipients type="text" placeholder="Recipient" /><br/><br/>
 				<textarea id="message" type="text" placeholder="Message"></textarea>
 				<button id="send">Send!</button>
-			</p>
+			</span>
+			<span style="float:right">
+				Status:
+				<a id="availability" href="#">Available</a>
+				<input id="status" type="text" />
+				<button id="statusUpdate">Update Status!</button>
+			</span>
 			<p>Chat History:</p>
 			<div id="out">
 				<i>Waiting for query results...</i>

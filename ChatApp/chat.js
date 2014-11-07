@@ -5,7 +5,10 @@ $(function(){
 	$.timeago.settings.strings.seconds= "%d seconds"
 	$.timeago.settings.strings.second= "a second"
     var pod = crosscloud.connect();
+	var myStatusEtag=null
 	var messages=[]
+	var myStatus=""
+	var myAvailability=true
 	messages[pod.loggedInURL]=[]
     var sendMessage = function () {
         
@@ -23,6 +26,40 @@ $(function(){
         pod.push(thisMessage);
         $("#message").val("")	//Ideally this only happens when the message has been sent successfully
     };
+	var x=function(item)
+	{
+	
+	}
+	var newAvailability=function(available)
+	{
+		myAvailability=available;
+		var newStat = { isChatStatus: 0.1,
+						status: myStatus,
+						available: available,
+						when: (new Date()).toISOString(),
+					  };	//Data to be stored on your pod
+		if(myStatusEtag!==null)
+		{
+			newStat["_etag"]=myStatusEtag
+		}
+        pod.push(newStat,x);
+	}
+    var newStatus = function (status)
+	{
+        var newStat = { isChatStatus: 0.1,
+						status: myStatus,
+						available: myAvailability,
+						when: (new Date()).toISOString(),
+                      };	//Data to be stored on your pod
+        var status = $("#status").val()
+		newStat.status=status
+		if(myStatusEtag===null)
+		{
+			newStat["_etag"]=myStatusEtag
+		}
+        pod.push(newStat);
+        $("#message").val("")	//Ideally this only happens when the message has been sent successfully
+    };
 
 
     // allow the enter key to be a submit as well
@@ -32,8 +69,45 @@ $(function(){
             return false;
         }
     });
+	$("#status").keypress(function (e) {
+        if (e.which == 13) {
+            $("#statusUpdate").click();
+            return false;
+        }
+    });
 	$("#send").click(sendMessage);
+	$("#statusUpdate").click(newStatus);
+	$("#availability").on('click', function () {
+		if ($(this).text()=="Available") {
+			newAvailability(false);
+		}
+		else {
+			newAvailability(true);
+		}
+});
+
     var show = 5;
+	var updateStatuses=function(items)
+	{
+		for(var i=0;i<items.length;i++)
+		{
+			if(items[i]._owner==pod.loggedInURL)
+			{
+				myStatusEtag=items[i]._etag;
+				myStatus=items[i].status
+				myAvailability=items[i].available
+				if(myAvailability)
+				{	
+					$("#availability").text("Available");
+				}
+				else
+				{	
+					$("#availability").text("Not Available");
+				}
+				break;
+			}
+		}
+	}
 	var updateMessages=function(items)
 	{
 		organizeMessages(items);
@@ -140,6 +214,10 @@ $(function(){
         pod.query()
             .filter( { isChatMessage:0.1 } )
             .onAllResults(updateMessages)
+            .start();
+        pod.query()
+            .filter( { isChatStatus:0.1 } )
+            .onAllResults(updateStatuses)
             .start();
 		$("#recipient").on("input",displayMessages);
     });
