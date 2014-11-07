@@ -12,7 +12,7 @@ $(function(){
 	messages[pod.loggedInURL]=[]
     var sendMessage = function () {
         
-        var thisMessage = { isChatMessage: 0.1,
+        var thisMessage = { isChatMessage: 0.15,
                             body: "Hello, World!",
 							recipients: [],
                             when: (new Date()).toISOString()
@@ -29,7 +29,7 @@ $(function(){
 	var newAvailability=function(available)
 	{
 		myAvailability=available;
-		var newStat = { isChatStatus: 0.1,
+		var newStat = { isChatStatus: 0.15,
 						status: myStatus,
 						available: available,
 						when: (new Date()).toISOString(),
@@ -42,7 +42,7 @@ $(function(){
 	}
     var newStatus = function (status)
 	{
-        var newStat = { isChatStatus: 0.1,
+        var newStat = { isChatStatus: 0.15,
 						status: myStatus,
 						available: myAvailability,
 						when: (new Date()).toISOString(),
@@ -217,11 +217,11 @@ $(function(){
         });
 		//var displayLoop=setInterval(displayMessages,1000)
         pod.query()
-            .filter( { isChatMessage:0.1 } )
+            .filter( { isChatMessage:0.15 } )
             .onAllResults(updateMessages)
             .start();
         pod.query()
-            .filter( { isChatStatus:0.1 } )
+            .filter( { isChatStatus:0.15 } )
             .onAllResults(updateStatuses)
             .start();
 		$("#recipient").on("input",displayMessages);
