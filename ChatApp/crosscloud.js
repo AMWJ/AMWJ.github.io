@@ -339,7 +339,7 @@
 			throw new Error("undefined argument");
 		}
 		if (this.loggedInURL !== null) {
-			this.onLogoutC`allbacks.push(callback);
+			this.onLogoutCallbacks.push(callback);
 		} else {
 			callback();
 		}
