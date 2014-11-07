@@ -5,10 +5,10 @@ $(function(){
 	$.timeago.settings.strings.seconds= "%d seconds"
 	$.timeago.settings.strings.second= "a second"
     var pod = crosscloud.connect();
-	var myStatusEtag=null
+	var myStatusPod=null
 	var messages=[]
 	var myStatus=""
-	var myAvailability=true
+	var myAvailability=false
 	messages[pod.loggedInURL]=[]
     var sendMessage = function () {
         
@@ -26,10 +26,6 @@ $(function(){
         pod.push(thisMessage);
         $("#message").val("")	//Ideally this only happens when the message has been sent successfully
     };
-	var x=function(item)
-	{
-	
-	}
 	var newAvailability=function(available)
 	{
 		myAvailability=available;
@@ -38,11 +34,11 @@ $(function(){
 						available: available,
 						when: (new Date()).toISOString(),
 					  };	//Data to be stored on your pod
-		if(myStatusEtag!==null)
+		if(myStatusPod!==null)
 		{
-			newStat["_etag"]=myStatusEtag
+			newStat["_id"]=myStatusPod
 		}
-        pod.push(newStat,x);
+        pod.push(newStat,podStored);
 	}
     var newStatus = function (status)
 	{
@@ -53,14 +49,20 @@ $(function(){
                       };	//Data to be stored on your pod
         var status = $("#status").val()
 		newStat.status=status
-		if(myStatusEtag===null)
+		if(myStatusPod!==null)
 		{
-			newStat["_etag"]=myStatusEtag
+			newStat["_id"]=myStatusPod
 		}
-        pod.push(newStat);
+        pod.push(newStat,podStored);
         $("#message").val("")	//Ideally this only happens when the message has been sent successfully
-    };
-
+    }
+	var podStored=function(item)
+	{
+		if(item._id)
+		{
+			myStatusPod=item._id;
+		}
+	}
 
     // allow the enter key to be a submit as well
     $("#message").keypress(function (e) {
@@ -93,20 +95,21 @@ $(function(){
 		{
 			if(items[i]._owner==pod.loggedInURL)
 			{
-				myStatusEtag=items[i]._etag;
+				myStatusPod=items[i]._id;
 				myStatus=items[i].status
 				myAvailability=items[i].available
-				if(myAvailability)
-				{	
-					$("#availability").text("Available");
-				}
-				else
-				{	
-					$("#availability").text("Not Available");
-				}
 				break;
 			}
 		}
+		if(myAvailability)
+		{	
+			$("#availability").text("Available");
+		}
+		else
+		{	
+			$("#availability").text("Not Available");
+		}
+        $("#status").val(myStatus)
 	}
 	var updateMessages=function(items)
 	{
@@ -118,7 +121,6 @@ $(function(){
 	{
 		$("#recipients").html("");
 		var rs = Object.keys(messages);
-		$("#recipients").append($("<optgroup label=Be>"));
 		if(rs.length==0)
 		{
 			$("#recipients").append(newRecipientOption("(None)"));
@@ -209,6 +211,9 @@ $(function(){
 			$("#recipient").off("input");
 			$("#send").prop('disabled', true);
 			//clearInterval(displayLoop)
+			myStatusPod=null;
+			myAvailability=false
+			myStatus=""
         });
 		//var displayLoop=setInterval(displayMessages,1000)
         pod.query()
