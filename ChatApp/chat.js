@@ -184,9 +184,11 @@ $(function(){
     pod.onLogin(function () {
         $("#out").html("waiting for data...");
 		$("#send").removeAttr('disabled');
+		$("#send").removeProp('disabled');
         pod.onLogout(function () {
             updateMessages([])
 			$("#recipient").off("input");
+			$("#send").attr('disabled', true);
 			$("#send").prop('disabled', true);
 			//clearInterval(displayLoop)
 			myStatusPod=null;
