@@ -1,0 +1,43 @@
+.from {
+	border: 3px solid lightblue;
+	border-radius:5px;
+	margin-left: 50px;
+	padding-left:10px;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	background-color: azure;
+	text-align:right;
+}
+.to {
+	border: 3px solid lightgreen;
+	border-radius:5px;
+	margin-right: 50px;
+	padding-left:10px;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	background-color: rgb(182, 255, 0)
+}
+.message {
+	margin-bottom:5px;
+	max-width:600px;
+	padding:3px;
+}
+.sender
+{
+	font-size:10px;
+}
+div.from div.messageContent {
+	padding-right:20px;
+	text-align:right;
+}
+div.to div.messageContent {
+	padding-left:20px;
+}
+.timeSent {
+	text-align:right;
+	font-size:10px
+}
+.messages {
+	margin-left:auto;
+	margin-right:auto;
+	max-width:600px;
+	overflow:hidden
+}
