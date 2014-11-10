@@ -183,6 +183,7 @@ $(function(){
 
     pod.onLogin(function () {
         $("#out").html("waiting for data...");
+		$("#send").removeprop('disabled');
         pod.onLogout(function () {
             updateMessages([])
 			$("#recipient").off("input");
