@@ -3,9 +3,14 @@
 	<head>
 		<title>Cross With Me</title>
 		<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-		<script src="jquery.timeago.js"></script>
-		<script src="chat.js"></script>
 		<script src="http://crosscloud.org/0.1.1/crosscloud.js"></script>
+		<link rel="stylesheet" type="text/css" href="chat.css" />
+		<script src="ember/js/libs/handlebars-v1.3.0.js"></script>
+		<script src="ember/js/libs/ember-1.8.1.js"></script>
+		<script src="ember/js/libs/ember-data.js"></script>
+		<script src="ember/js/app.js"></script>
+		<script src="moment.js"></script>
+		<script src="chat.js"></script>
 		<style>
 			body { 
 			  font-family: Arial; 
@@ -36,29 +41,63 @@
 	</head>
 	<body>
 		<div id="error">JS Not Running</div>
-		<div>
-			<h2>Cross With Me<br/><span style="font-size: 70%; color:gray;">Crosscloud Chatting Application Demo</span></h2>
-			<p class="note">
-				This is a chat application, based on code from the <a href="http://crosscloud.org/0.1.1/example/hello">Crosscloud Hello World Demo Application</a>.  The modifications were made by Ariel Jacobs.
-			</p>
-			<datalist id=recipients >
-			</datalist>
-			<span>
-				<label for="recipient">To</label>
-				<input id="recipient" list=recipients type="text" placeholder="Recipient" /><br/><br/>
-				<textarea id="message" type="text" placeholder="Message"></textarea>
-				<button id="send">Send!</button>
-			</span>
-			<span style="float:right">
-				Status:
-				<a id="availability" href="#">Available</a>
-				<input id="status" type="text" />
-				<button id="statusUpdate">Update Status!</button>
-			</span>
-			<p>Chat History:</p>
-			<div id="out">
-				<i>Waiting for query results...</i>
+			<script type="text/x-handlebars">
+				<div>
+					<h2>Cross With Me<br/><span style="font-size: 70%; color:gray;">Crosscloud Chatting Application Demo</span></h2>
+					<p class="note">
+						This is a chat application, based on code from the <a href="http://crosscloud.org/0.1.1/example/hello">Crosscloud Hello World Demo Application</a>.  The modifications were made by Ariel Jacobs.
+					</p>
+				</div>
+				{{outlet}}
+			</script>
+			<script type="text/x-handlebars" id="index">
+				<button style="visibility:hidden" id="it" {{action "getLatest"}}></button>
+				
+				<div class="messages">
+					{{#each}}
+					{{#ifCond _owner}}
+					<div class="message from">
+						<div class="sender">
+							From {{_owner}}:
+						</div>
+						<div class="messageContent">
+							{{body}}
+						</div>
+						<div class="timeSent">
+							{{currentDate when}}
+						</div>
+					</div>
+					{{else}}
+					<div class="message to">
+						<div class="sender">
+							From {{_owner}}:
+						</div>
+						<div class="messageContent">
+							{{body}}
+						</div>
+						<div class="timeSent">
+							{{currentDate when}}
+						</div>
+					</div>
+					{{/ifCond}}
+					{{/each}}
+				</div>
+				<datalist id=recipients >
+				</datalist>
+				<span>
+					<label for="recipient">To</label>
+					<input id="recipient" list=recipients type="text" placeholder="Recipient" /><br/><br/>
+					<textarea id="message" type="text" placeholder="Message"></textarea>
+					<button id="send">Send!</button>
+				</span>
+				<span style="float:right">
+					Status:
+					<a id="availability" href="#">Not Available</a>
+					<input id="status" type="text" />
+					<button id="statusUpdate">Update Status!</button>
+				</span>
 			</div>
-		</div>
+			</script>
+			
 	</body>
 </html>

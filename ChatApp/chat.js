@@ -1,10 +1,8 @@
 "use strict";
+var pod = crosscloud.connect();
 $(function(){
 	//Based on http://crosscloud.org/0.1.1/example/hello
     $("#error").html("");  // clear the "Missing Javascript" error message
-	$.timeago.settings.strings.seconds= "%d seconds"
-	$.timeago.settings.strings.second= "a second"
-    var pod = crosscloud.connect();
 	var myStatusPod=null
 	var messages=[]
 	var myStatus=""
@@ -26,6 +24,7 @@ $(function(){
         pod.push(thisMessage);
         $("#message").val("")	//Ideally this only happens when the message has been sent successfully
     };
+	$("#send").click(sendMessage);
 	var newAvailability=function(available)
 	{
 		myAvailability=available;
@@ -77,7 +76,6 @@ $(function(){
             return false;
         }
     });
-	$("#send").click(sendMessage);
 	$("#statusUpdate").click(newStatus);
 	$("#availability").on('click', function () {
 		if ($(this).text()=="Available") {
@@ -175,40 +173,22 @@ $(function(){
 	}
     var displayMessages = function ()
 	{
-		$("#out").html("<table id='results'><tr><th>Link</th><th>Sent</th><th>From</th><th>To</th></tr></table>");
+		$("#out").html("");
 		var table = $("#results");
 		var currentRecipient=$("#recipient").val()
-		var items=messages[currentRecipient]||[]
-		items.sort(function(a,b){return a.when<b.when?1:(a.when===b.when?0:-1)});
-		var count = 0;
-		if(currentRecipient=="")
-		{
-			$("#send").prop('disabled', true);
-		}
-		else
-		{
-			$("#send").prop('disabled', false);
-			items.forEach(function(item) {
-				count++;
-				var row = $("<tr>");
-				row.append($("<td>").html("<a href='"+item._id+"'>data</a>"));
-				row.append($("<td>").text($.timeago(item.when) || "---"));
-				row.append($("<td>").html("<a href='"+item._owner+"'>"+item._owner+"</a>"));
-				row.append($("<td>").text(recipientList(item.recipients) || "(anon)"));
-				row.append($("<td>").html(item.body));
-				if (item._owner==pod.getUserId()) {
-					row.append($("<td>").html("(you)"));
-				}
-				table.append(row)
-			});
-		}
+		displayedPosts=messages[currentRecipient]||[]
+		displayedPosts.sort(function(a,b){return a.when<b.when?-1:(a.when===b.when?0:1)});
+		$("#it").click()
     };
 
     pod.onLogin(function () {
         $("#out").html("waiting for data...");
+		$("#send").removeAttr('disabled');
+		$("#send").removeProp('disabled');
         pod.onLogout(function () {
             updateMessages([])
 			$("#recipient").off("input");
+			$("#send").attr('disabled', true);
 			$("#send").prop('disabled', true);
 			//clearInterval(displayLoop)
 			myStatusPod=null;
@@ -226,7 +206,10 @@ $(function(){
             .start();
 		$("#recipient").on("input",displayMessages);
     });
-	
+	var refreshList=function()
+	{
+		
+	}
 });
 function recipientList(recipients)
 {
