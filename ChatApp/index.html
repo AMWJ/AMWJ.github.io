@@ -2,102 +2,124 @@
 <html lang="en-US">
 	<head>
 		<title>Cross With Me</title>
-		<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+		<script src="jquery-1.11.1.min.js"></script>
 		<script src="http://crosscloud.org/0.1.1/crosscloud.js"></script>
 		<link rel="stylesheet" type="text/css" href="chat.css" />
-		<script src="ember/js/libs/handlebars-v1.3.0.js"></script>
-		<script src="ember/js/libs/ember-1.8.1.js"></script>
-		<script src="ember/js/libs/ember-data.js"></script>
-		<script src="ember/js/app.js"></script>
 		<script src="moment.js"></script>
 		<script src="chat.js"></script>
+		<script src="handlebars-v2.0.0.js"></script>
 		<style>
-			body { 
-			  font-family: Arial; 
-			}
-			.note {
-			  margin: 0;
-			  padding-left: 2em;
-			  font-size: 85%;
-			  font-style: italic;
-			}
-			table {
-				border-width: 5px;
-			}
-			thead td {
-			  background: #ccc;
-			}
-			tbody tr th {
-			  border-bottom: 1px solid #ccc;
-			}
-			tbody tr:hover {
-			 background: #eee;
-			}
-			td, th {
-			 padding: 2px;
-			 padding-left: 6px
-			}
+		#bottom
+		{
+			position:fixed;
+			bottom:0px;
+			background-color:white;
+			width:100%;
+			height:100px;
+			border-top:black 1px dashed;
+		}
+		#filler
+		{
+			width:90%;
+			overflow:hidden;
+			height:100px;
+			position:absolute;
+		}
+		#recipient
+		{
+			margin:4px;
+		}
+		#statusControls
+		{
+			margin-right:10px;
+		}
+		#sideBar
+		{
+			width:150px;
+			height:100%;
+			position:fixed;
+			border-right:solid 1px black;
+			margin-right:3px;
+		}
+		.messages
+		{
+			padding-left:160px;
+		}
 		</style>
 	</head>
 	<body>
-		<div id="error">JS Not Running</div>
-			<script type="text/x-handlebars">
-				<div>
+		<datalist id=recipients >
+		</datalist>
+		<div id="container">
+			<div id="error">JS Not Running</div>
+			<div id="scrollContent">
+				<div id="sideBar">
+					<div id="contactList">
+					</div>
+					<button id="newMessage">New Message</button>
+				</div>
+				<div style="margin-left: 160px;">
 					<h2>Cross With Me<br/><span style="font-size: 70%; color:gray;">Crosscloud Chatting Application Demo</span></h2>
 					<p class="note">
 						This is a chat application, based on code from the <a href="http://crosscloud.org/0.1.1/example/hello">Crosscloud Hello World Demo Application</a>.  The modifications were made by Ariel Jacobs.
 					</p>
 				</div>
-				{{outlet}}
-			</script>
-			<script type="text/x-handlebars" id="index">
-				<button style="visibility:hidden" id="it" {{action "getLatest"}}></button>
-				
 				<div class="messages">
-					{{#each}}
-					{{#ifCond _owner}}
-					<div class="message from">
-						<div class="sender">
-							From {{_owner}}:
-						</div>
-						<div class="messageContent">
-							{{body}}
-						</div>
-						<div class="timeSent">
-							{{currentDate when}}
-						</div>
-					</div>
-					{{else}}
-					<div class="message to">
-						<div class="sender">
-							From {{_owner}}:
-						</div>
-						<div class="messageContent">
-							{{body}}
-						</div>
-						<div class="timeSent">
-							{{currentDate when}}
-						</div>
-					</div>
-					{{/ifCond}}
-					{{/each}}
 				</div>
-				<datalist id=recipients >
-				</datalist>
+				<div id="filler"/>
+			</div>
+			<div id="bottom">
 				<span>
 					<label for="recipient">To</label>
-					<input id="recipient" list=recipients type="text" placeholder="Recipient" /><br/><br/>
+					<input id="recipient" disabled list=recipients type="text" placeholder="Recipient" /><br/><br/>
 					<textarea id="message" type="text" placeholder="Message"></textarea>
 					<button id="send">Send!</button>
 				</span>
-				<span style="float:right">
+				<span id="statusControls" style="float:right">
 					Status:
 					<a id="availability" href="#">Not Available</a>
 					<input id="status" type="text" />
 					<button id="statusUpdate">Update Status!</button>
 				</span>
 			</div>
-			</script>
-			
+		</div>
+	<script type="text/x-handlebars" id="chatHistory">				
+		{{#each this}}
+			{{#isOwner _owner}}
+			<div class="message from">
+				<div class="sender">
+					From {{_owner}}:
+				</div>
+				<div class="messageContent">
+					{{body}}
+				</div>
+				<div class="timeSent">
+					{{relativeTime when}}
+				</div>
+			</div>
+			{{else}}
+			<div class="message to">
+				<div class="sender">
+					From {{_owner}}:
+				</div>
+				<div class="messageContent">
+					{{body}}
+				</div>
+				<div class="timeSent">
+					{{relativeTime when}}
+				</div>
+			</div>
+			{{/isOwner}}
+		{{/each}}
+	</script>
+	<script type="text/x-handlebars" id="recipientListItem">
+		{{#each this}}
+			<p>
+				<a class="contact" href="#{{this}}">
+					{{ this }}
+				</a>
+			</p>
+		{{/each}}
+	</script>
 	</body>
 </html>

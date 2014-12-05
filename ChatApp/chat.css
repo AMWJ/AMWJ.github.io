@@ -6,6 +6,7 @@
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	background-color: azure;
 	text-align:right;
+	float:right;
 }
 .to {
 	border: 3px solid lightgreen;
@@ -13,12 +14,15 @@
 	margin-right: 50px;
 	padding-left:10px;
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	background-color: rgb(182, 255, 0)
+	background-color: rgb(182, 255, 0);
+	float:left;
 }
 .message {
+	width:85%;
 	margin-bottom:5px;
 	max-width:600px;
 	padding:3px;
+	clear:both;
 }
 .sender
 {
