@@ -4,11 +4,18 @@ $(function(){
 	$("#error").html("");  // clear the "Missing Javascript" error message
 	var myStatusPod=null;
 	var pod = crosscloud.connect();
+	var myProfile={
+		isProfile:0.1,
+		available:false,
+		status:""
+	};
+	var profiles={};
 	var myStatus=""
 	var displayMessages;
 	var messages=[]
 	var displayedPosts=[]
 	var myAvailability=false
+	var statusState="Unreal"
 	messages[pod.loggedInURL]=[]
 	Handlebars.registerHelper('relativeTime', function(date) {
 		return moment(date).fromNow();
@@ -27,11 +34,12 @@ $(function(){
 	{
 		$("#recipient").removeAttr('disabled');
 		$("#recipient").removeProp('disabled');
+		$("#recipient").val("");
+		$(".messages").html("");
 	};
     var sendMessage = function () {
-        
-        var thisMessage = { isChatMessage: 0.15,
-                            body: "Hello, World!",
+		var thisMessage = { isChatMessage: 0.15,
+							body: "Hello, World!",
 							recipients: [],
                             when: (new Date()).toISOString()
                           };	//Data to be stored on your pod
@@ -49,17 +57,10 @@ $(function(){
 	$("#send").click(sendMessage);
 	var newAvailability=function(available)
 	{
-		myAvailability=available;
-		var newStat = { isChatStatus: 0.15,
-						status: myStatus,
-						available: available,
-						when: (new Date()).toISOString(),
-					  };	//Data to be stored on your pod
-		if(myStatusPod!==null)
-		{
-			newStat["_id"]=myStatusPod
-		}
-        pod.push(newStat,podStored);
+		myProfile.available=available;
+		myProfile.lastUpdated=(new Date()).toISOString()
+        pod.push(myProfile,podStored);
+        $("#profileSaveStatus").text(statusState);
 	}
 	var changeRecipient = function(recipient)
 	{
@@ -71,19 +72,12 @@ $(function(){
 	}
     var newStatus = function (status)
 	{
-        var newStat = { isChatStatus: 0.15,
-						status: myStatus,
-						available: myAvailability,
-						when: (new Date()).toISOString(),
-                      };	//Data to be stored on your pod
         var status = $("#status").val()
-		newStat.status=status
-		if(myStatusPod!==null)
-		{
-			newStat["_id"]=myStatusPod
-		}
-        pod.push(newStat,podStored);
-        $("#message").val("")	//Ideally this only happens when the message has been sent successfully
+		myProfile.status=status
+		myProfile.lastUpdated=(new Date()).toISOString()
+        pod.push(myProfile,podStored);
+		statusState="Updating ...";
+        $("#profileSaveStatus").text(statusState);
     }
 	var podStored=function(item)
 	{
@@ -123,13 +117,14 @@ $(function(){
 		{
 			if(items[i]._owner==pod.loggedInURL)
 			{
-				myStatusPod=items[i]._id;
-				myStatus=items[i].status
-				myAvailability=items[i].available
-				break;
+				myProfile=items[i];
+			}
+			else
+			{
+				profiles[items[i]._owner.replace("http://","")]=items[i];
 			}
 		}
-		if(myAvailability)
+		if(myProfile.available)
 		{	
 			$("#availability").text("Available");
 		}
@@ -137,7 +132,16 @@ $(function(){
 		{	
 			$("#availability").text("Not Available");
 		}
-        $("#status").val(myStatus)
+		if(statusState!="Editing")
+		{
+			$("#status").val(myProfile.status);
+			statusState="Saved";
+			$("#profileSaveStatus").text(statusState);
+		}
+		if(messages.length)
+		{
+			updateRecipientList()
+		}
 	}
 	var updateMessages=function(items)
 	{
@@ -147,21 +151,24 @@ $(function(){
 	}
 	var updateRecipientList=function()
 	{
-		$("#recipients").html("");
-		var rs = Object.keys(messages);
-		if(rs.length==0)
+		var recipients=[]
+		$("#contactList").html("");
+		var ids = Object.keys(messages);
+		ids.forEach(function(id,i)
 		{
-			$("#recipients").append(newRecipientOption("(None)"));
-		}
-		rs.forEach(function(recipient)
-		{
-			$("#recipients").append(newRecipientOption(recipient));
-
+			var recipient={};
+			recipient.id=id;
+			if(profiles[id])
+			{
+				recipient.status=profiles[id].status;
+				recipient.available=profiles[id].available;
+			}
+			recipients.push(recipient);
 		});
 		var theTemplateScript = $("#recipientListItem").html(); 
 		var theTemplate = Handlebars.compile (theTemplateScript); 
-		$("#contactList").html(theTemplate(rs));
-
+		$("#contactList").html(theTemplate(recipients));
+		$(".contact").click(changeRecipient);
 	}
 	var newRecipientOption=function(recipient)
 	{
@@ -216,22 +223,11 @@ $(function(){
 		if ($(window).height() + $(window).scrollTop() == $(document).height())
 		{
 				isBottom=true;
-		}	
-		if(currentRecipient=="")
-		{
-			$("#send").prop('disabled', true);
-			$("#send").attr('disabled', true);
-		}
-		else
-		{
-			$("#send").prop('disabled', false);
-			$("#send").attr('disabled', false);
 		}
 		//Databind messages
 		var theTemplateScript = $("#chatHistory").html(); 
 		var theTemplate = Handlebars.compile (theTemplateScript); 
 		$(".messages").html(theTemplate(displayedPosts));
-		$(".contact").click(changeRecipient)
 		if(isBottom)
 		{
 			window.scrollTo(0,document.body.scrollHeight);
@@ -242,23 +238,28 @@ $(function(){
         $("#out").html("waiting for data...");
 		$("#send").removeAttr('disabled');
 		$("#send").removeProp('disabled');
+		var theTemplateScript = $("#currentUserTemplate").html(); 
+		var theTemplate = Handlebars.compile (theTemplateScript); 
+		$("#currentUser").html(theTemplate(pod));
         pod.onLogout(function () {
             updateMessages([])
 			$("#recipient").off("input");
 			$("#send").attr('disabled', true);
 			$("#send").prop('disabled', true);
-			//clearInterval(displayLoop)
 			myStatusPod=null;
-			myAvailability=false
-			myStatus=""
-        });
-		//var displayLoop=setInterval(displayMessages,1000)
+			myAvailability=false;
+			myProfile={};
+			$("#currentUser").html(theTemplate(pod));
+			statusState="Unreal"
+			$("#status").val("");
+			profiles={}
+		});
         pod.query()
             .filter( { isChatMessage:0.15 } )
             .onAllResults(updateMessages)
             .start();
         pod.query()
-            .filter( { isChatStatus:0.15 } )
+            .filter( { isProfile:0.1 } )
             .onAllResults(updateStatuses)
             .start();
 		//$("#recipient").on("input",displayMessages);
@@ -268,6 +269,11 @@ $(function(){
 		
 	}
     $("#newMessage").click(newMessage);
+	$("#status").on("input",function()
+	{
+		statusState="Editing";
+        $("#profileSaveStatus").text(statusState);
+	});
 
 });
 function recipientList(recipients)

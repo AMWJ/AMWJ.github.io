@@ -15,7 +15,7 @@
 			bottom:0px;
 			background-color:white;
 			width:100%;
-			height:100px;
+			height:130px;
 			border-top:black 1px dashed;
 		}
 		#filler
@@ -24,26 +24,41 @@
 			overflow:hidden;
 			height:100px;
 			position:absolute;
+			margin-left:160px;
 		}
 		#recipient
 		{
 			margin:4px;
+			width:100%;
 		}
 		#statusControls
 		{
 			margin-right:10px;
+			float:left;
+			border-right:solid 1px black;
+			height:100%;
+			width:150px;
 		}
 		#sideBar
 		{
+			overflow-x:hidden;
 			width:150px;
 			height:100%;
 			position:fixed;
 			border-right:solid 1px black;
 			margin-right:3px;
 		}
+		#status
+		{
+			width:125px;
+		}
 		.messages
 		{
 			padding-left:160px;
+		}
+		#newMessageForm
+		{
+			float:left;
 		}
 		</style>
 	</head>
@@ -54,7 +69,9 @@
 			<div id="error">JS Not Running</div>
 			<div id="scrollContent">
 				<div id="sideBar">
-					NAme
+					<div id="currentUser">
+						Not Logged In
+					</div>
 					<div id="contactList">
 					</div>
 					<button id="newMessage">New Message</button>
@@ -70,57 +87,73 @@
 				<div id="filler"/>
 			</div>
 			<div id="bottom">
-				<span>
+				<div id="statusControls">
+					Status:
+					<a id="availability" href="#">Not Available</a><br>
+					<input id="status" type="text" />
+					<button id="statusUpdate">Update Status!</button>
+					<div id="profileSaveStatus">Saved</div>
+				</div>
+				<div id="newMessageForm">
 					<label for="recipient">To</label>
 					<input id="recipient" disabled list=recipients type="text" placeholder="Recipient" /><br/><br/>
 					<textarea id="message" type="text" placeholder="Message"></textarea>
 					<button id="send">Send!</button>
-				</span>
-				<span id="statusControls" style="float:right">
-					Status:
-					<a id="availability" href="#">Not Available</a>
-					<input id="status" type="text" />
-					<button id="statusUpdate">Update Status!</button>
-				</span>
+				</div>
 			</div>
 		</div>
 	<script type="text/x-handlebars" id="chatHistory">				
 		{{#each this}}
-			{{#isOwner _owner}}
-			<div class="message from">
+			<div class="message {{#isOwner _owner}}from{{else}}to{{/isOwner}}">
 				<div class="sender">
 					From {{_owner}}:
 				</div>
 				<div class="messageContent">
-					{{body}}
+						{{#if body}}
+							{{body}}
+						{{else}}
+							(Poke)
+						{{/if}}
 				</div>
 				<div class="timeSent">
 					{{relativeTime when}}
 				</div>
 			</div>
-			{{else}}
-			<div class="message to">
-				<div class="sender">
-					From {{_owner}}:
-				</div>
-				<div class="messageContent">
-					{{body}}
-				</div>
-				<div class="timeSent">
-					{{relativeTime when}}
-				</div>
-			</div>
-			{{/isOwner}}
 		{{/each}}
 	</script>
 	<script type="text/x-handlebars" id="recipientListItem">
-		{{#each this}}
+		{{#if this.length}}
+			{{#each this}}
+				<p>
+					<a class="contact" href="#{{this}}">
+						{{ id }}
+					</a><br>
+					<span style="font-weight:bold;color:{{#if available}}
+						rgb(0,128,0)
+					{{else}}
+						#800000
+					{{/if}}">{{ status }}</span>
+				</p>
+			{{/each}}
+		{{else}}
 			<p>
-				<a class="contact" href="#{{this}}">
-					{{ this }}
-				</a>
+				(None)
 			</p>
-		{{/each}}
+		{{/if}}
+	</script>
+	<script type="text/x-handlebars" id="currentUserTemplate">
+		{{#if loggedInURL}}
+		Logged in as: {{loggedInURL}}
+		{{else}}
+		Not Logged In
+		{{/if}}
+	</script>
+	<script type="text/x-handlebars" id="statusState">
+		{{#if loggedInURL}}
+		Logged in as: {{loggedInURL}}
+		{{else}}
+		Not Logged In
+		{{/if}}
 	</script>
 	</body>
 </html>
