@@ -17,6 +17,9 @@ $(function(){
 	var myAvailability=false
 	var statusState="Unreal"
 	messages[pod.loggedInURL]=[]
+	Handlebars.registerHelper('defaultUserName', function(userID) {
+		return moment(date).fromNow();
+	});
 	Handlebars.registerHelper('relativeTime', function(date) {
 		return moment(date).fromNow();
 	});
@@ -55,6 +58,12 @@ $(function(){
 		$("#recipient").attr('disabled', true);
     };
 	$("#send").click(sendMessage);
+	var newUserName=function(userName)
+	{
+		myProfile.userName=userName;
+		myProfile.lastUpdated=(new Date()).toISOString()
+        pod.push(myProfile,podStored);
+	}
 	var newAvailability=function(available)
 	{
 		myProfile.available=available;
@@ -94,6 +103,7 @@ $(function(){
             return false;
         }
     });
+    
 	$("#status").keypress(function (e) {
         if (e.which == 13) {
             $("#statusUpdate").click();
@@ -138,7 +148,7 @@ $(function(){
 			statusState="Saved";
 			$("#profileSaveStatus").text(statusState);
 		}
-		if(messages.length)
+		if(Object.keys(messages).length)
 		{
 			updateRecipientList()
 		}
@@ -162,13 +172,30 @@ $(function(){
 			{
 				recipient.status=profiles[id].status;
 				recipient.available=profiles[id].available;
+				recipient.lastUpdated=profiles[id].lastUpdated;
 			}
 			recipients.push(recipient);
 		});
 		var theTemplateScript = $("#recipientListItem").html(); 
 		var theTemplate = Handlebars.compile (theTemplateScript); 
 		$("#contactList").html(theTemplate(recipients));
+		
+		
+		var theTemplateScript = $("#currentUserTemplate").html(); 
+		var theTemplate = Handlebars.compile (theTemplateScript); 
+		$("#currentUser").html(theTemplate(myProfile));
+		
 		$(".contact").click(changeRecipient);
+		// save changes to userName
+		$("#currentUserName").keydown(function (e) {
+			if (e.which == 13) {
+				newUserName($("#currentUserName").text());
+				return false;
+			}
+			if (e.which == 27) {
+				updateRecipientList();
+			}
+		});
 	}
 	var newRecipientOption=function(recipient)
 	{

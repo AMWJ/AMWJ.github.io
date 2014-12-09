@@ -22,7 +22,7 @@
 		{
 			width:90%;
 			overflow:hidden;
-			height:100px;
+			height:130px;
 			position:absolute;
 			margin-left:160px;
 		}
@@ -59,6 +59,12 @@
 		#newMessageForm
 		{
 			float:left;
+		}
+		#currentUserName
+		{
+			font-weight:bold;
+			cursor:pointer;
+			text-decoration:underline;
 		}
 		</style>
 	</head>
@@ -128,7 +134,7 @@
 					<a class="contact" href="#{{this}}">
 						{{ id }}
 					</a><br>
-					<span style="font-weight:bold;color:{{#if available}}
+					<span title="{{relativeTime lastUpdated }}" style="font-weight:bold;color:{{#if available}}
 						rgb(0,128,0)
 					{{else}}
 						#800000
@@ -142,10 +148,14 @@
 		{{/if}}
 	</script>
 	<script type="text/x-handlebars" id="currentUserTemplate">
-		{{#if loggedInURL}}
-		Logged in as: {{loggedInURL}}
+		{{#if _owner}}
+		Logged in as: <div contenteditable id="currentUserName">{{ userName }}</div> ({{_owner}})
 		{{else}}
-		Not Logged In
+			{{#if loggedInURL}}
+				Logged in as:  ({{ loggedInURL }})
+			{{else}}
+				Not Logged In
+			{{/if}}
 		{{/if}}
 	</script>
 	<script type="text/x-handlebars" id="statusState">
