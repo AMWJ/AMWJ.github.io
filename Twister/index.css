@@ -1,0 +1,48 @@
+.twist, .newTwistForm {
+    border: black 2px solid;
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: -10px -10px rgba(200,200,200, .8);
+    margin: 5px;
+}
+
+.authorBlock {
+    color: rgb(150, 150, 150);
+}
+
+.dateBlock {
+    float: right;
+}
+
+#twists {
+	padding-top: 100px;
+    margin-left: 10px;
+}
+
+#loginDiv, #newAccountDiv {
+    position: absolute;
+    width: 100%;
+}
+
+#loginForm, #newAccountForm {
+    width: 200px;
+    text-align: right;
+    margin-left: auto;
+    margin-right: auto;
+    padding-right: 50px;
+}
+
+.loginFailed {
+    color: red;
+    font-size: 10px;
+}
+
+.logoutButton {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+#newTwistText {
+    width: 85%;
+}

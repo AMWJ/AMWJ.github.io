@@ -1,0 +1,64 @@
+
+<!doctype html>
+<html lang="en" ng-app="TweetDemo" ng-cloak>
+
+<head>
+  <title>Twister</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <link href="index.css" rel="stylesheet" />
+</head>
+
+<body>
+
+	<form id="newFriendForm" style="width:120px;float:right;">
+		<label>
+			<select>
+				<option>
+					Friends
+				</option>
+			</select>
+		</label>
+		<input type="text" placeholder="New Friend" id="newFriendText" />
+		<input type="submit" style="width:100%;" />
+	</form>
+	<div id="twists">
+			<form class="newTwistForm" id="newTwistForm">
+				<div class='authorBlock'>You:</div>
+				<div class='contentBlock'>
+					<textarea id="newTwistText"></textarea>
+					<br/>
+					<label>
+						Only non-commercial:
+						<input type="checkbox" id="nonCommercialChoice" />
+					</label>
+					<label>
+						Derivatives:
+						<select id="derivativesChoice">
+							<option>
+								Any
+							</option>
+							<option>
+								No Derivatives
+							</option>
+							<option>
+								Share Alike
+							</option>
+						</select>
+					</label>
+					<input type="submit" />
+				</div>
+			</form>
+	</div>
+  <!-- Deps -->
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="js/jquery.timeago.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/rdflib.min.js"></script>
+  <script src="js/solid-0.14.1.min.js"></script>
+  <!-- App -->
+  <script src="twist.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
