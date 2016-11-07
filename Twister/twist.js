@@ -32,7 +32,7 @@ Twist = function(t, auth, lic, d, attrib, uri) {
 		var thisResource = $rdf.sym('');
 
 		graph.add(thisResource, solid.vocab.sioc('content'), $rdf.lit(t));
-		graph.add(thisResource, solid.vocab.sioc('author'), $rdf.lit(auth.replace(/\/$/, "")));
+		graph.add(thisResource, solid.vocab.sioc('author'), $rdf.lit(auth));
 		graph.add(thisResource, solid.vocab.sioc('date'), $rdf.lit(d));
 		graph.add(thisResource, solid.vocab.sioc('license'), $rdf.lit(lic.getUri()));
 		if(attrib){

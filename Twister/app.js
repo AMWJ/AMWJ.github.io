@@ -170,7 +170,7 @@ var signIn = function(){
 		user = currentWebId;
 		return solid.getProfile(user);
 	}).then(function(profile) {
-		defaultContainer = profile.parsedGraph.any($rdf.sym(user),solid.vocab.pim("storage")).value;
+		defaultContainer = profile.parsedGraph.any($rdf.sym(user),solid.vocab.pim("storage")).value.replace(/\/$/, "");
 		name = profile.parsedGraph.any($rdf.sym(user),solid.vocab.foaf("name")).value;
 		refreshFriendList();
 		loadAll();
