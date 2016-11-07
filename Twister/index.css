@@ -1,17 +1,32 @@
-.twist, .newTwistForm {
-    border: black 2px solid;
+.retwistForm.listing {
+    border: green 2px solid;
+    margin-left: 50px;
+}
+
+.newTwistForm, .twist {
+	border: black 2px solid;
+}
+
+.listing {
     border-radius: 15px;
     padding: 10px;
     box-shadow: -10px -10px rgba(200,200,200, .8);
-    margin: 5px;
+	overflow: auto;
+	margin: 5px;
 }
 
 .authorBlock {
     color: rgb(150, 150, 150);
 }
 
-.dateBlock {
+.floatRight {
     float: right;
+	text-align: right;
+}
+
+.floatLeft {
+    float: left;
+	width: 70%;
 }
 
 #twists {
@@ -45,4 +60,40 @@
 
 #newTwistText {
     width: 85%;
+}
+
+.retwistTwistText {
+	width: 100%;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    margin-top: 100px;
+	text-align: center;
+}
+
+.attribution {
+	float: left;
+	clear: both;
+	width: 100%;
+	text-align: center;
+    border-top: 1px solid black;
+    margin-top: 5px;
+    padding-top: 5px;
 }

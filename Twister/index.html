@@ -13,7 +13,7 @@
 
 	<form id="newFriendForm" style="width:120px;float:right;">
 		<label>
-			<select>
+			<select id="friendSelectBox">
 				<option>
 					Friends
 				</option>
@@ -21,28 +21,37 @@
 		</label>
 		<input type="text" placeholder="New Friend" id="newFriendText" />
 		<input type="submit" style="width:100%;" />
+		<button id="logoutButton" style="width:100%;">Logout</button>
 	</form>
 	<div id="twists">
-			<form class="newTwistForm" id="newTwistForm">
+			<form class="newTwistForm listing" id="newTwistForm">
 				<div class='authorBlock'>You:</div>
 				<div class='contentBlock'>
 					<textarea id="newTwistText"></textarea>
 					<br/>
 					<label>
-						Only non-commercial:
-						<input type="checkbox" id="nonCommercialChoice" />
-					</label>
-					<label>
-						Derivatives:
-						<select id="derivativesChoice">
-							<option>
-								Any
+						License:
+						<select id="licenseChoice">
+							<option value="CC_BY">
+								CC BY
 							</option>
-							<option>
-								No Derivatives
+							<option value="CC-BY_SA">
+								CC BY-SA
 							</option>
-							<option>
-								Share Alike
+							<option value="CC_BY_ND">
+								CC BY-ND
+							</option>
+							<option value="CC_BY_NC">
+								CC BY-NC
+							</option>
+							<option value="CC_BY_NC_SA">
+								CC BY-NC-SA
+							</option>
+							<option value="CC_BY_NC_ND">
+								CC BY-NC-ND
+							</option>
+							<option value="CC0">
+								CC0
 							</option>
 						</select>
 					</label>
@@ -53,12 +62,24 @@
   <!-- Deps -->
   <script src="js/jquery-3.1.1.min.js"></script>
   <script src="js/jquery.timeago.js"></script>
+  <script src="js/jquery.modal.min.js"></script>
   <script src="js/common.js"></script>
   <script src="js/rdflib.min.js"></script>
   <script src="js/solid-0.14.1.min.js"></script>
   <!-- App -->
   <script src="twist.js"></script>
+  <script src="js/commons.js"></script>
   <script src="app.js"></script>
+  
+  <div id="signInModal" class="modal">
+    <form id="signIn" class="modal-content">
+		<label>
+			<input type="checkbox" id="isCommercial">
+			Commercial Use?
+		</label><br>
+		<input type="submit" />
+	</form>
+  </div>
 </body>
 
 </html>
