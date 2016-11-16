@@ -1,7 +1,7 @@
 /**
 * The main app
 */
-var solid = require("solid");
+var solid = SolidClient;
 var user = null;
 var name = null;
 var defaultContainer = null;
@@ -16,7 +16,7 @@ function publishNew () {
 	var bin = {};
 	bin.content = $("#newTwistText").val();
 	var license = License.getCCLicense($("#licenseChoice").val());
-	twist = Twist(bin.content, user, license);
+	var twist = Twist(bin.content, user, [new Licensing(user, license)]);
 	var graph = twist.toGraph();
     var data = new $rdf.Serializer(graph).toN3(graph);
 	
@@ -30,7 +30,7 @@ function publishNew () {
 
 function load (url) {
     solid.web.get(url).then(function(response) {
-        var graph = response.parsedGraph();
+        var graph = response.parsedGraph;
         var subject = $rdf.sym(response.url);
 
 		var twistContainers = graph.statements
@@ -93,29 +93,11 @@ var getRetwistForm = function(twist) {
 				<br/>\
 				<label>\
 					License:\
-					<select class='retwistTwistLicenseChoice'>\
-						<option value='CC_BY'>\
-							CC BY\
-						</option>\
-						<option value='CC_BY_SA'>\
-							CC BY-SA\
-						</option>\
-						<option value='CC_BY_ND'>\
-							CC BY-ND\
-						</option>\
-						<option value='CC_BY_NC'>\
-							CC BY-NC\
-						</option>\
-						<option value='CC_BY_NC_SA'>\
-							CC BY-NC-SA\
-						</option>\
-						<option value='CC_BY_NC_ND'>\
-							CC BY-NC-ND\
-						</option>\
-						<option value='CC0'>\
-							CC0\
-						</option>\
-					</select>\
+					<select "+(mustShareAlike(twist)?"disabled ":"")+"class='retwistTwistLicenseChoice'>"+
+					Object.keys(License.CCLicenses).map(function(license){
+						return "<option "+(twist.strictestLicensing().license().getUri()==license?"selected ":"")+"value='"+License.CCLicenses[license].getId()+"'>"+License.CCLicenses[license].getName()+"</option>"
+					}).join('')+
+					"</select>\
 				</label>\
 				<input type='submit' />\
 			</div>\
@@ -127,8 +109,8 @@ var getRetwistForm = function(twist) {
 var signIn = function(){
 	$(".modal").css("display","none");
 	$("#newTwistForm").submit(function(e) {
-		publishNew();
 		e.preventDefault();
+		publishNew();
 	});
 	$("#logoutButton").click(function(e) {
 		logout();
@@ -148,6 +130,13 @@ var signIn = function(){
 		else{
 			sourceTwist = null;
 		}
+		e.preventDefault();
+	});
+	$(document).on("click",".deleteButton", function(e) {
+		$(".retwistForm").remove();
+		sourceTwist = null;
+		var twistIndex = Number($(e.target).closest(".twist")[0].dataset.twist);
+		twistList[twistIndex].delete();
 		e.preventDefault();
 	});
 	$(document).on("submit", ".retwistForm", function(e){

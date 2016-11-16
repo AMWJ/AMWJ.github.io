@@ -1,4 +1,4 @@
-Twist = function(t, auth, lic, d, attrib, uri) {
+Twist = function(t, auth, lics, d, attrib, uri) {
 	if(!d) {
 		d = Date.now();
 	}
@@ -12,8 +12,8 @@ Twist = function(t, auth, lic, d, attrib, uri) {
 	that.author = function(){
 		return auth;
 	}
-	that.license = function (){
-		return lic;
+	that.licenses = function (){
+		return lics;
 	}
 	that.uri = function(){
 		return uri;
@@ -34,7 +34,12 @@ Twist = function(t, auth, lic, d, attrib, uri) {
 		graph.add(thisResource, solid.vocab.sioc('content'), $rdf.lit(t));
 		graph.add(thisResource, solid.vocab.sioc('author'), $rdf.lit(auth));
 		graph.add(thisResource, solid.vocab.sioc('date'), $rdf.lit(d));
-		graph.add(thisResource, solid.vocab.sioc('license'), $rdf.lit(lic.getUri()));
+		lics.forEach(function(lic){
+			var thisLicense = $rdf.blankNode();
+			
+			graph.add(thisResource, solid.vocab.sioc('license'), thisLicense);
+			graph.add(thisLicense, solid.vocab.sioc('author'),$rdf.lit(lic.getUri()));
+		})
 		if(attrib){
 			graph.add(thisResource, solid.vocab.sioc('source'), $rdf.lit(attrib.original));
 			graph.add(thisResource, solid.vocab.sioc('modified'), $rdf.lit(attrib.modified));
@@ -42,12 +47,12 @@ Twist = function(t, auth, lic, d, attrib, uri) {
 		}
 		return graph;
 	}
-	that.retwist = function(newLicense, newText){
+	that.retwist = function(newLicenses, newText){
 		if(mustAttribute(that)){
-			return Twist(newText, user, newLicense, Date.now(), {original:uri,modified:newText!=t,author:friendList[auth].name});
+			return Twist(newText, user, newLicenses, Date.now(), {original:uri,modified:newText!=t,author:friendList[auth].name});
 		}
 		else{
-			return Twist(newText, user, newLicense, Date.now());
+			return Twist(newText, user, newLicenses, Date.now());
 		}
 	}
 	var userName = function(){
@@ -61,6 +66,17 @@ Twist = function(t, auth, lic, d, attrib, uri) {
 			return auth;
 		}
 	}
+	
+	that.delete = function() {
+		solid.web.del(uri).then(function(response) {
+			window.location.reload();
+		});
+	}
+	
+	that.canDelete = function() {
+		return user==auth;
+	}
+	
 	that.toHTML = function(index) {
 		var ret = $("<div class='twist listing' data-twist='"+index+"'>\
 					<div class='floatLeft'>\
@@ -69,14 +85,17 @@ Twist = function(t, auth, lic, d, attrib, uri) {
 					</div>\
 					<div class='floatRight'>\
 						<div class='licenseImageBlock'>\
-						<a href='"+lic.getUri()+"' target='_blank'>\
-							<img src='"+lic.getImage()+"'/></div>\
+						<a href='"+lics[0].getUri()+"' target='_blank'>\
+							<img src='"+lics[0].getImage()+"'/></div>\
 						</a>\
 						<time class='dateBlock' datetime='"+(new Date(Number(d))).toISOString()+"'></time>\
 					</div>\
 				  </div>");
 		if(that.canRetwist(isCommercial)){
 			ret.find(".floatLeft").append($("<button class='retwistButton'>Retwist</button>"));
+		}
+		if(that.canDelete()){
+			ret.find(".floatLeft").append($("<button class='deleteButton'>Delete</button>"));
 		}
 		if(that.attribution()){
 			var attributionDiv = $("<div class='attribution'>").html("This work is a derivative of "+
@@ -111,9 +130,9 @@ Twist.fromGraph = function(graph, subject){
 		source = sourceElem.value;
 		modified = graph.any(subject, solid.vocab.sioc('modified')).value;
 		sourceAuthor = graph.any(subject, solid.vocab.sioc('sourceAuthor')).value;
-		return Twist(text, author, license, date, {source:source, modified: modified, author: sourceAuthor}, subject.value);
+		return Twist(text, author, [license], date, {source:source, modified: modified, author: sourceAuthor}, subject.value);
 	}
 	else {
-		return Twist(text, author, license, date, null, subject.value);
+		return Twist(text, author, [license], date, null, subject.value);
 	}
 }
