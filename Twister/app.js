@@ -21,6 +21,7 @@ function publishNew () {
     var data = new $rdf.Serializer(graph).toN3(graph);
 	
 	solid.web.post(defaultContainer + twistsBin, data).then(function(meta) {
+		//solid.web.patch(meta.meta)
 		window.location.reload();
 	}).catch(function(err) {
         // do something with the error
@@ -29,9 +30,9 @@ function publishNew () {
 }
 
 function load (url) {
-    solid.web.get(url).then(function(response) {
-        var graph = response.parsedGraph;
-        var subject = $rdf.sym(response.url);
+	solid.web.get(url).then(function(response){
+		var graph = response.parsedGraph;
+		var subject = $rdf.sym(response.url);
 
 		var twistContainers = graph.statements
 			.filter(
@@ -45,10 +46,25 @@ function load (url) {
 		twistContainers.forEach(function(twistUri){
 			loadTwist(twistUri);
 		});
-	}).catch(function(err) {
-        // do something with the error
-        console.log(err)
-    });
+	}).catch(function(e){
+		if(e.code==404) {
+			solid.web.createContainer(defaultContainer, "twists").then(function(twistsNewFolder){
+				// We successfully created the folder that was missing, so try retrieving the folder again.
+				solid.getPermissions(twistsNewFolder.linkHeaders.acl[0]).then(function(permissionSet){
+					return permissionSet.addPermission(solid.acl.EVERYONE, solid.acl.READ).save()
+				}).then(function(){
+					console.log("Permissions saved successfully.");
+				}).done(function(){
+					load(url);
+				});
+			}).catch(function(){
+				console.log(e);
+			});
+		}
+		else{
+			console.log(e);
+		}
+	});
 }
 
 var loadTwist = function(url) {

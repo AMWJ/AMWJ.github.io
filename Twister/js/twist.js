@@ -72,14 +72,14 @@ Twist = function(t, auth, lics, d, attrib, uri) {
 	}
 	
 	that.toHTML = function(index) {
-		var ret = $("<div class='twist listing' data-twist='"+index+"'>\
+		var ret = $("<div about='"+that.uri()+"' class='twist listing' data-twist='"+index+"'>\
 					<div class='floatLeft'>\
 						<div class='authorBlock'>"+userName()+":</div>\
 						<div class='contentBlock'>"+t+"</div>\
 					</div>\
 					<div class='floatRight'>\
 						<div class='licenseImageBlock'>\
-						<a href='"+that.strictestLicensing().license().getUri()+"' target='_blank'>\
+						<a rel='license'  href='"+that.strictestLicensing().license().getUri()+"' target='_blank'>\
 							<img src='"+that.strictestLicensing().license().getImage()+"'/></div>\
 						</a>\
 						<time class='dateBlock' datetime='"+(new Date(Number(d))).toISOString()+"'></time>\
@@ -94,14 +94,15 @@ Twist = function(t, auth, lics, d, attrib, uri) {
 		[].concat(that.licenses()).reverse().forEach(function(licensing){
 			if(mustAttribute(licensing)){
 				var author = friendList[licensing.author()]
-				var attributionDiv = $("<div class='attribution'>").html("This work is a derivative of "+
+				var attributionDiv = $("<div prefix='cc: http://creativecommons.org/ns#' class='attribution'>").html("This work is a derivative of "+
 				"<a target='_blank' href='"+
 				(licensing.original()) + 
 				"'>" + (licensing.original()) +
-				"</a> by <a href='" +
+				"</a> by <a property='cc:attributeName' rel='cc:attributeURL' href='" +
 				licensing.author() +
 				"'>" +
-				(author ? author.name : licensing.author())+"</a>, licensed under "+licensing.license().getId());
+				(author ? author.name : licensing.author())+"</a>, licensed under <a rel='cc:license' href='"+licensing.license().getUri()+"'>"+licensing.license().getName()+
+				"</a>");
 				ret.append(attributionDiv);
 			}
 		});
