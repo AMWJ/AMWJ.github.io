@@ -40,14 +40,19 @@ Twist = function(t, auth, lics, d, attrib, uri) {
 			graph.add(thisResource, solid.vocab.sioc('licensing'), thisLicense);
 			graph.add(thisLicense, solid.vocab.sioc('license'),$rdf.lit(lic.license().getUri()));
 			graph.add(thisLicense, solid.vocab.sioc('author'),$rdf.lit(lic.author()));
-			var originalSource = lic.original();
+			var originalSource = lic.original() || "";
 			graph.add(thisLicense, solid.vocab.sioc('original'), $rdf.lit(originalSource));
 		})
 		return graph;
 	}
 	that.retwist = function(newLicense, newText){
-		var newLicensing = Licensing(user, newLicense);
-		return Twist(newText, user,  lics.concat([newLicensing]), Date.now());
+		if(newText!=t){
+			var newLicensing = Licensing(user, newLicense);
+			return Twist(newText, user,  lics.concat([newLicensing]), Date.now());
+		}
+		else {
+			return Twist(newText, user,  lics, Date.now());
+		}
 	}
 	var userName = function(){
 		if(user==auth){
@@ -91,7 +96,7 @@ Twist = function(t, auth, lics, d, attrib, uri) {
 		if(that.canDelete()){
 			ret.find(".floatLeft").append($("<button class='deleteButton'>Delete</button>"));
 		}
-		[].concat(that.licenses()).reverse().forEach(function(licensing){
+		[].concat(that.licenses()).reverse().slice(1).forEach(function(licensing){
 			if(mustAttribute(licensing)){
 				var author = friendList[licensing.author()]
 				var attributionDiv = $("<div prefix='cc: http://creativecommons.org/ns#' class='attribution'>").html("This work is a derivative of "+
@@ -126,7 +131,7 @@ Twist.fromGraph = function(graph, subject){
 			var license = License.fromUri(graph.any(licensingElem.object, solid.vocab.sioc('license')).value);
 			var originalElem = graph.any(licensingElem.object, solid.vocab.sioc('original'));
 			var original = originalElem ? originalElem.value : subject.value;
-			return Licensing(graph.any(licensingElem.object, solid.vocab.sioc('author')).value, license, original);
+			return Licensing(graph.any(licensingElem.object, solid.vocab.sioc('author')).value, license, original || subject.uri);
 		});
 	}
 	var sourceElem = graph.any(subject, solid.vocab.sioc('source'));

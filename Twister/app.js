@@ -49,7 +49,7 @@ function load (url) {
 	}).catch(function(e){
 		if(e.code==404) {
 			solid.web.createContainer(defaultContainer, "twists").then(function(twistsNewFolder){
-				solid.web.post(twistsNewFolder.linkHeaders.acl[0]).then(function() {
+				/*solid.web.post(twistsNewFolder.linkHeaders.acl[0]).then(function() {
 					solid.getPermissions(twistsNewFolder.url).then(function(permissionSet){
 						return permissionSet.addPermission(solid.acl.EVERYONE, solid.acl.READ).save()
 					}).then(function(){
@@ -60,9 +60,10 @@ function load (url) {
 				}).catch(function(){
 					console.log("Couldn't create permissions.");
 					console.log(e);
-				});
-			}).catch(function(){
-				console.log(e);
+				});*/
+				return twistsNewFolder.addPermission(solid.acl.EVERYONE, solid.acl.READ).save()
+			}).then(function(){
+				console.log("Permissions saved successfully.");
 			});
 		}
 		else{
