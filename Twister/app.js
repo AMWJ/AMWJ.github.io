@@ -49,13 +49,17 @@ function load (url) {
 	}).catch(function(e){
 		if(e.code==404) {
 			solid.web.createContainer(defaultContainer, "twists").then(function(twistsNewFolder){
-				// We successfully created the folder that was missing, so try retrieving the folder again.
-				solid.getPermissions(twistsNewFolder.linkHeaders.acl[0]).then(function(permissionSet){
-					return permissionSet.addPermission(solid.acl.EVERYONE, solid.acl.READ).save()
-				}).then(function(){
-					console.log("Permissions saved successfully.");
-				}).done(function(){
-					load(url);
+				solid.web.post(twistsNewFolder.linkHeaders.acl[0]).then(function() {
+					solid.getPermissions(twistsNewFolder.url).then(function(permissionSet){
+						return permissionSet.addPermission(solid.acl.EVERYONE, solid.acl.READ).save()
+					}).then(function(){
+						console.log("Permissions saved successfully.");
+					}).done(function(){
+						load(url);
+					});
+				}).catch(function(){
+					console.log("Couldn't create permissions.");
+					console.log(e);
 				});
 			}).catch(function(){
 				console.log(e);
