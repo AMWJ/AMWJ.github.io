@@ -14,7 +14,7 @@ function publishNew () {
     var data = new $rdf.Serializer(graph).toN3(graph);
 	
 	solid.web.post(boxUri + '/' + electionsFolder, data).then(function(meta) {
-        window.location.href = '/index.html?' + meta.url;
+        window.location.href = 'index.html?' + meta.url;
 	}).catch(function(err) {
         // do something with the error
         console.log(err)
