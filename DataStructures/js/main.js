@@ -1,4 +1,4 @@
-var phase = 1;
+var phase = 300;
 $(function () {
     var dataStructures = DataStructures();
 
@@ -6,32 +6,51 @@ $(function () {
         refreshTrees(e.currentTarget);
     });
 
+    var deferred = $.Deferred();
+    deferred.resolve();
+    var currentStack = deferred.promise();
+
+    var insertNumber = function () {
+        var insertInput = $("#insertControl > input[type=number]");
+        var insertValue = parseInt(insertInput.val());
+        insertInput.val("");
+        if (!isNaN(insertValue)) {
+            currentStack = currentStack.then(function () {
+                return dataStructures.insert(insertValue)
+            });
+        }
+    }
+
+    $("#insertControl > input[type=number]").keypress(function (e) {
+        if (e.keyCode == 13) {
+            insertNumber()
+        }
+    });
+
+    $("#insertControl > button").click(function (e) {
+        insertNumber();
+    });
+
+    $("#clearControl > button").click(function (e) {
+        currentStack = currentStack.then(function () {
+            setSelectedElement(null, null);
+            return dataStructures.clear();
+        });
+    });
+
     var insertAll = function (array) {
-        first = array.pop()
-        dataStructures.insert(first).done(function () {
-            if (array.length > 0) {
-                insertAll(array);
-            }
-            else {
-                return true;
-            }
-        });
+        for (var i = 0; i < array.length; i++) {
+            $("#insertControl > input[type=number]").val(array[i])
+            insertNumber(array[i]);
+        }
     }
 
-
-    var insertRandom = function () {
-        var randomNum = Math.random();
-        dataStructures.insert(Math.floor(randomNum*2)).done(function () {
-            insertRandom();
-        });
-
-    }
-    //var array = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0];
-    array = Array.apply(null, Array(1000)).map(function (_, i) { return i; });
-    array = shuffle(array);
-    array.reverse();
+    var array = [];
+    array = shuffle(Array.apply(null, Array(10000)).map(function (_, i) { return i; }));
+    //array.reverse();
     //insertRandom();
-    insertAll(array);
+    //insertAll(array);
+
 });
 
 function shuffle(array) {

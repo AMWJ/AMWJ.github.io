@@ -1,5 +1,5 @@
 // Generates 2-3-4 Tree from a Red/Black Tree
-BTree = function (redBlackTree) {
+BTree = function () {
     var BTreeElement = function (id, value) {
         var node = null;
         var retObj = {
@@ -89,7 +89,6 @@ BTree = function (redBlackTree) {
     }
     var size = 0;
     var root = null;
-    var allElements = {};
     var currentlyFixing = null;
 
     var retObj = {
@@ -99,7 +98,6 @@ BTree = function (redBlackTree) {
             var newNode = BTreeNode(null, true);
             newNode.addElement(currentlyFixing);
             currentlyFixing.setNode(newNode);
-            allElements[id] = currentlyFixing;
             root = newNode;
         },
         insertIntoNonNull: function (id, value) {
@@ -177,9 +175,17 @@ BTree = function (redBlackTree) {
             }
             currentlyFixing = promoted;
         },
+        clear: function () {
+            size = 0;
+            root = null;
+            currentlyFixing = null;
+        },
         traverse: function () {
             var elementArray = new Array(size);
             var edgeArray = [];
+            if (root == null) {
+                return { elements: [], edges: [] };
+            }
             var nodes = [{ node: root }];
             var depth = -1;
             var nodeOnRow = 0;
@@ -225,9 +231,7 @@ BTree = function (redBlackTree) {
                 }
                 for (var i = 0; i < node.elements(); i++) {
                     elementArray[writeIndex] = {
-                        value: node.getElement(i).value(),
-                        id: node.getElement(i).id(),
-                        depth: node.depth(),
+                        node: node.getElement(i),
                         indexOnRow: nodeOnRow,
                         elementOnRow: elementOnRow,
                     };

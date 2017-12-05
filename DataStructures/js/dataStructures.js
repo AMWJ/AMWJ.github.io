@@ -1,17 +1,25 @@
 // Maintains all data structures, and makes changes incrementally.
 DataStructures = function () {
-    var redBlackTree = RedBlackTree();
-    var bTree = BTree();
-    var allNodes = {};
     var id = 0;
     var eventQueue = $.Deferred();
     var inProgress = false;
+    var structures = [
+        RedBlackTree(),
+        BTree(),
+        SkipList(),
+    ];
+    var redBlackTree = structures[0];
 
     eventQueue.done();
     var retObj;
-    waitOn = function (func) {
+    waitOnEach = function (func, incrementId) {
         var deferred = $.Deferred();
-        func();
+        for (var i = 0; i < structures.length; i++) {
+            func(structures[i]);
+        }
+        if (incrementId) {
+            id++;
+        }
         $(retObj).triggerHandler("bananas");
         setTimeout(function () {
             deferred.resolve();
@@ -20,35 +28,33 @@ DataStructures = function () {
     }
     var retObj = {
         insertIntoNull: function (value) {
-            return waitOn(function () {
-                redBlackTree.insertIntoNull(id, value);
-                bTree.insertIntoNull(id, value);
-                id++;
-            });
+            return waitOnEach(function (structure) {
+                structure.insertIntoNull(id, value);
+            }, true);
         },
         insertIntoNonNull: function (value) {
-            return waitOn(function () {
-                redBlackTree.insertIntoNonNull(id, value);
-                bTree.insertIntoNonNull(id, value);
-                id++;
-            });
+            return waitOnEach(function (structure) {
+                structure.insertIntoNonNull(id, value);
+            }, true);
         },
         leftRotation: function () {
-            return waitOn(function () {
-                redBlackTree.leftRotation();
-                bTree.leftRotation();
+            return waitOnEach(function (structure) {
+                structure.leftRotation();
             });
         },
         rightRotation: function (value) {
-            return waitOn(function () {
-                redBlackTree.rightRotation();
-                bTree.rightRotation();
+            return waitOnEach(function (structure) {
+                structure.rightRotation();
             });
         },
         promotion: function () {
-            return waitOn(function () {
-                redBlackTree.promotion();
-                bTree.promotion();
+            return waitOnEach(function (structure) {
+                structure.promotion();
+            });
+        },
+        clear: function () {
+            return waitOnEach(function (structure) {
+                structure.clear();
             });
         },
         insert: function (value) {
@@ -97,11 +103,17 @@ DataStructures = function () {
                 });
             }
         },
-        traverseBTree: function () {
-            return bTree.traverse();
+        remove: function (value) {
+            structure.deleteNodeAndReplace(value);
         },
         traverseRedBlackTree: function () {
-            return redBlackTree.traverse();
+            return structures[0].traverse();
+        },
+        traverseBTree: function () {
+            return structures[1].traverse();
+        },
+        traverseSkipList: function () {
+            return structures[2].traverse();
         },
     };
     return retObj;

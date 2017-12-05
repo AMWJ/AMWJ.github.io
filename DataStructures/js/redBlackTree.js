@@ -50,12 +50,21 @@ RedBlackTree = function () {
                     return parent.depth() + 1;
                 }
             },
+            rowIndex: function () {
+                if (parent == null) {
+                    return 0;
+                } else if (this.isLeftChild()) {
+                    return parent.rowIndex() * 2;
+                }
+                else {
+                    return parent.rowIndex() * 2 + 1;
+                }
+            },
         };
         return retObj;
     }
     var size = 0;
     var root = null;
-    var allNodes = {};
     var currentlyFixing = null;
 
     var retObj = {
@@ -65,40 +74,47 @@ RedBlackTree = function () {
         root: function () {
             return root;
         },
-        getNodeById: function (id) {
-            return allNodes[id];
-        },
         finger: function () {
             return currentlyFixing;
         },
         insertIntoNull: function (id, value) {
             size++;
             currentlyFixing = RedBlackTreeNode(id, value);
-            allNodes[id] = currentlyFixing;
             root = currentlyFixing;
             root.setColor(false);
         },
         insertIntoNonNull: function (id, value) {
             size++;
             currentlyFixing = RedBlackTreeNode(id, value);
-            allNodes[id] = currentlyFixing;
             var consideredNode = root;
             var consideredValue = null;
             while (true) {
                 consideredValue = consideredNode.value();
-                var nextNode = value > consideredValue ? consideredNode.right() : consideredNode.left();
+                var nextNode = value < consideredValue ? consideredNode.left() : consideredNode.right();
                 if (nextNode == null) {
                     break;
                 }
                 consideredNode = nextNode;
             }
-            if (value > consideredValue) {
-                consideredNode.setRight(currentlyFixing);
-            }
-            else {
+            if (value < consideredValue) {
                 consideredNode.setLeft(currentlyFixing);
             }
+            else {
+                consideredNode.setRight(currentlyFixing);
+            }
             currentlyFixing.setParent(consideredNode);
+        },
+        findNode: function (value) {
+            var node = root;
+            while (node != null) {
+                if (node.value() == value) {
+                    return node;
+                }
+                else {
+                    node = node.value() > value ? node.left() : node.right();
+                }
+            }
+            return null;
         },
         leftRotation: function () {
             var parent = currentlyFixing.parent();
@@ -227,49 +243,54 @@ RedBlackTree = function () {
                 }
             }
         },
+        clear: function () {
+            size = 0;
+            root = null;
+            currentlyFixing = null;
+
+        },
         traverse: function () {
             var nodeArray = new Array(size);
-            var edgeArray = new Array(size - 1);
-            var firstNode = { node: root, rowIndex: 0 };
+            var edgeArray = new Array();
+            if (root == null) {
+                return { elements: [], edges: [] };
+            }
+            var firstNode = root;
             var nodes = [firstNode];
             var depth = -1;
             var writeIndex = 0;
             while (nodes.length > 0) {
-                var queueElement = nodes.pop();
-                var node = queueElement.node;
+                var node = nodes.pop();
 
                 if (node.depth() > depth) {
                     depth = node.depth();
                 }
-                nodeArray[writeIndex] = { node: node, depth: depth, rowIndex: queueElement.rowIndex };
+                nodeArray[writeIndex] = node;
                 writeIndex++;
 
                 if (root != node) {
-                    edgeArray.push({
-                        depth: node.depth(),
-                        from: {
-                            node: node.parent(),
-                            nodeOnRow: queueElement.parentNodeIndex,
-                            elementOnRow: queueElement.parentElementIndex,
-                        },
-                        to: {
-                            node: node,
-                        },
-                    });
+                    if (node.parent().id() < node.id()) {
+                        edgeArray.push({
+                            depth: node.parent().depth(),
+                            from: node.parent(),
+                            to: node,
+                        });
+                    }
+                    else {
+                        edgeArray.push({
+                            depth: node.parent().depth(),
+                            from: node,
+                            to: node.parent(),
+                        });
+                    }
                 }
 
                 if (node.left() != null) {
-                    var childNode = {
-                        node: node.left(),
-                        rowIndex: queueElement.rowIndex * 2,
-                    }
+                    var childNode = node.left();
                     nodes.splice(0, 0, childNode);
                 }
                 if (node.right() != null) {
-                    var childNode = {
-                        node: node.right(),
-                        rowIndex: queueElement.rowIndex * 2 + 1,
-                    }
+                    var childNode = node.right()
                     nodes.splice(0, 0, childNode);
                 }
             }

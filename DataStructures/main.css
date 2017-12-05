@@ -1,22 +1,76 @@
 html, body {
     height: 100%;
     width: 100%;
+    margin: 0px;
+}
+
+#main {
+    display:flex;
+    flex-direction:column;
+    height: 99%;
+}
+
+#controls {
+    display: flex;
+    flex-flow: row wrap;
+    border: 2px solid gray;
+    border-radius: 2px;
+}
+
+.control {
+    margin: 15px;
+}
+    .control > [type=number] {
+        width: 60px;
+    }
+
+#svgContainer, .skipList {
+    padding-top:10px;
 }
 
 #svgContainer {
     display: flex;
     height: 80%;
+    flex: 1;
 }
 
-g.bTreeElement {
+.skipList {
+    height: 180px;
+    border-top: 1px solid black;
+}
+
+.skipList, .bTree, .redBlack {
+    padding: 3px;
+}
+
+g.bTreeElement, g.redBlackTreeElement, g.skipListElement {
     cursor: pointer;
 }
-text.bTreeText {
-    cursor: pointer;
+
+.divider {
+    width: 2px;
+    margin: 6px 0;
+    background: black;
+    border-radius: 1px;
+}
+
+.treeLabel {
+    position:absolute;
+    font-style: italic;
+    font-family: sans-serif;
 }
 
 .treeSvg {
     height: 100%;
     flex-grow: 1;
     flex-basis: 0;
+}
+
+.info-button {
+    justify-content: flex-end;
+    border-radius: 5px;
+}
+
+.filler {
+    flex-grow: 1;
 }

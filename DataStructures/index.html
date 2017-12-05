@@ -5,31 +5,125 @@
     <!-- Libraries -->
     <script src="js/jquery.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.js"></script>
 
     <!-- Data Models -->
     <script src="js/redBlackTree.js"></script>
-    <script src="js/BTree.js"></script>
+    <script src="js/bTree.js"></script>
+    <script src="js/skipList.js"></script>
     <script src="js/dataStructures.js"></script>
 
     <!-- Visualizations -->
     <script src="js/redBlackTreeVisualizer.js"></script>
-    <script src="js/BTreeVisualizer.js"></script>
+    <script src="js/bTreeVisualizer.js"></script>
+    <script src="js/skipListVisualizer.js"></script>
     <script src="js/visualizer.js"></script>
 
     <script src="js/main.js"></script>
     <link href="main.css" rel="stylesheet" />
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link rel="stylesheet" href="font-awesome/css/font-awesome.min.css">
 </head>
 <body>
-    <div id="svgContainer">
-        <div class="bTree treeSvg">
+    <div id="main">
+        <div id="controls">
+            <label class="control" id="insertControl">
+                <input type="number" />
+                <button>Insert</button>
+            </label>
+            <label class="control" id="removeControl">
+                <input type="number" />
+                <button>Remove</button>
+            </label>
+            <label class="control" id="anotherControl">
+                <button title="Another">Another</button>
+            </label>
+            <div class="filler"></div>
+            <label class="control" id="clearControl">
+                <button title="Clear">Clear</button>
+            </label>
+            <div class="control">
+                <button class="info-button" data-toggle="modal" data-target="#info-box">
+                    <i class="fa fa-info"></i>
+                </button>
+            </div>
+        </div>
+        <div id="svgContainer">
+            <div class="bTree treeSvg">
+                <label class="treeLabel">
+                    2-3-4 Tree
+                </label>
+                <svg width="100%" height="100%">
+
+                </svg>
+            </div>
+            <div class="divider"></div>
+            <div class="redBlack treeSvg">
+                <label class="treeLabel">
+                    Red-Black Tree
+                </label>
+                <svg width="100%" height="100%">
+
+                </svg>
+            </div>
+        </div>
+        <div class="skipList">
+            <label class="treeLabel">
+                Deterministic Skip List
+            </label>
             <svg width="100%" height="100%">
 
             </svg>
         </div>
-        <div class="redBlack treeSvg">
-            <svg width="100%" height="100%">
+    </div>
 
-            </svg>
+    <div id="info-box" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">About this page</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>This page shows 3 equivalent data structures:
+                        <ul>
+                            <li>
+                                Red-Black Trees
+                            </li>
+                            <li>
+                                2-3-4 B-Trees
+                            </li>
+                            <li>
+                                Deterministic Skip Lists
+                            </li>
+                        </ul>
+
+                    While each looks different than one another, and maintain their data in different ways, they each perform the same operations, and have analogous structure. (If the Red-Black Trees were forced to be <i>left-leaning</i>, all 3 would be isomorphic to one another).
+                    Sources:
+                        <ul>
+                            <li>
+                                <a href="https://en.wikipedia.org/wiki/Red%E2%80%93black_tree">Red-Black Trees</a> can be found on Wikipedia, as well as many places online.
+                            </li>
+                            <li>
+                                The <a href="https://en.wikipedia.org/wiki/2%E2%80%933%E2%80%934_tree">Wikipedia page on 2-3-4 Trees</a> was also helpful
+                            </li>
+                            <li>
+                                Deterministic Skip Lists are defined by Munro, Papadakis, and Sedgewick <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.399.6035&rep=rep1&type=pdf">here</a>.
+                            </li>
+                        </ul>
+                    </p>
+                    <p>
+                        This page was made by <a href="mailto:arielj@mit.edu">Ariel Jacobs</a> for <a href="http://courses.csail.mit.edu/6.851/fall17/">6.851, Fall 2017</a>, taught by Erik Demaine. It uses D3.js, JQuery, and Bootstrap.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </body>
