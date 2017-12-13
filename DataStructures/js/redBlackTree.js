@@ -1,6 +1,6 @@
 var Colors = { RED: true, BLACK: false };
 RedBlackTree = function () {
-    var RedBlackTreeNode = function (id, value) {
+    var RedBlackTreeNode = function (id, value, fake) {
         var left = null;
         var right = null;
         var parent = null;
@@ -23,6 +23,9 @@ RedBlackTree = function () {
             },
             id: function () {
                 return id;
+            },
+            fake: function () {
+                return fake || false;
             },
             setParent: function (node) {
                 parent = node;
@@ -77,11 +80,19 @@ RedBlackTree = function () {
         finger: function () {
             return currentlyFixing;
         },
+        insert: function (id, value) {
+            if (size == 0) {
+                this.insertIntoNull(id, value);
+            }
+            else {
+                this.insertIntoNonNull(id, value);
+            }
+        },
         insertIntoNull: function (id, value) {
             size++;
-            currentlyFixing = RedBlackTreeNode(id, value);
-            root = currentlyFixing;
+            root = RedBlackTreeNode(id, value);
             root.setColor(false);
+            currentlyFixing = null;
         },
         insertIntoNonNull: function (id, value) {
             size++;
@@ -207,47 +218,239 @@ RedBlackTree = function () {
             uncle.setColor(false);
             currentlyFixing = grandparent;
         },
-        insert: function (value) {
-            if (root == null) {
-                this.insertIntoNull(value);
-            }
-            else {
-                // Insertion
-                this.insertIntoNonNull(value);
-
-                // Rotation/Recoloring
-                while (this.finger() != null) {
-                    var bottomConsidered = this.finger();
-                    var parent = bottomConsidered.parent();
-                    if (!bottomConsidered.color() || !parent.color()) {
-                        currentlyFixing = bottomConsidered.parent();
-                        continue;
-                    }
-                    var grandparent = parent.parent();
-                    var isParentLeftChild = parent.isLeftChild();
-                    var uncle = isParentLeftChild ? grandparent.right() : grandparent.left();
-                    if (uncle == null || uncle.color() == Colors.BLACK) {
-                        if (isParentLeftChild) {
-                            // Rotation needed clockwise
-                            this.rightRotation();
-                        }
-                        else{
-                            // Rotation needed counterclockwise
-                            this.leftRotation();
-                        }
-                        break;
-                    }
-                    else {
-                        this.promotion();
-                    }
-                }
-            }
-        },
         clear: function () {
             size = 0;
             root = null;
             currentlyFixing = null;
 
+        },
+        deleteNodeAndReplace: function (value) {
+            currentlyFixing = null;
+            var nodeToDelete = root;
+            while (nodeToDelete != null && nodeToDelete.value() != value) {
+                nodeToDelete = nodeToDelete.value() > value ? nodeToDelete.left() : nodeToDelete.right();
+            }
+            if (nodeToDelete == null) {
+                return;
+            }
+            size--;
+            if (nodeToDelete.left() != null && nodeToDelete.right() != null) {
+                var leftSuccessor = nodeToDelete.left();
+                while (leftSuccessor.right() != null) {
+                    var leftSuccessor = leftSuccessor.right();
+                }
+                if (leftSuccessor.parent() != nodeToDelete) {
+                    if (leftSuccessor.left() != null) {
+                        leftSuccessor.parent().setRight(leftSuccessor.left());
+                        leftSuccessor.left().setParent(leftSuccessor.parent());
+                        if (leftSuccessor.color() == Colors.BLACK && leftSuccessor.left().color() == Colors.RED) {
+                            currentlyFixing = null;
+                            leftSuccessor.left().setColor(Colors.BLACK);
+                        }
+                        else {
+                            currentlyFixing = leftSuccessor.left();
+                        }
+                    }
+                    else {
+                        currentlyFixing = RedBlackTreeNode(null, null, true);
+                        currentlyFixing.setParent(leftSuccessor.parent());
+                        leftSuccessor.parent().setRight(currentlyFixing);
+                    }
+                    if (leftSuccessor.color() == Colors.RED) {
+                        if (currentlyFixing.isLeftChild()) {
+                            currentlyFixing.parent().setLeft(null);
+                        } else {
+                            currentlyFixing.parent().setRight(null);
+                        }
+                        currentlyFixing = null;
+                    }
+                    var parent = nodeToDelete.parent();
+                    var left = nodeToDelete.left();
+                    var right = nodeToDelete.right();
+                    left.setParent(leftSuccessor);
+                    leftSuccessor.setLeft(left);
+                    right.setParent(leftSuccessor);
+                    leftSuccessor.setRight(right);
+                    if (nodeToDelete == root) {
+                        root = leftSuccessor;
+                        leftSuccessor.setParent(null);
+                    }
+                    else if (nodeToDelete.isLeftChild()) {
+                        parent.setLeft(leftSuccessor);
+                    }
+                    else {
+                        parent.setRight(leftSuccessor);
+                    }
+                    leftSuccessor.setParent(parent);
+                    leftSuccessor.setColor(nodeToDelete.color());
+                }
+                else {
+                    if (nodeToDelete == root) {
+                        root = leftSuccessor;
+                    }
+                    else if (nodeToDelete.isLeftChild()) {
+                        nodeToDelete.parent().setLeft(leftSuccessor);
+                    } else {
+                        nodeToDelete.parent().setRight(leftSuccessor);
+                    }
+                    leftSuccessor.setParent(nodeToDelete.parent());
+                    leftSuccessor.setRight(nodeToDelete.right());
+                    if (nodeToDelete.right() != null) {
+                        nodeToDelete.right().setParent(leftSuccessor);
+                    }
+                    if (leftSuccessor.color() == Colors.BLACK) {
+                        if (leftSuccessor.left() != null) {
+                            currentlyFixing = leftSuccessor.left();
+                        }
+                        else {
+                            currentlyFixing = RedBlackTreeNode(null, null, true);
+                            currentlyFixing.setParent(leftSuccessor);
+                            leftSuccessor.setLeft(currentlyFixing);
+                        }
+                    } else {
+                        currentlyFixing = null;
+                    }
+                    leftSuccessor.setColor(nodeToDelete.color());
+                }
+            }
+            else {
+                if (nodeToDelete == root && nodeToDelete.left() == null && nodeToDelete.right() == null) {
+                    root = null;
+                    currentlyFixing = null;
+                    return;
+                }
+                if (nodeToDelete.color() == Colors.BLACK) {
+                    currentlyFixing = nodeToDelete.parent();
+                }
+                var child = nodeToDelete.left() || nodeToDelete.right();
+                if (child != null) {
+                    if (nodeToDelete == root) {
+                        root = child;
+                        child.setParent(null);
+                    } else {
+                        child.setParent(nodeToDelete.parent());
+                        if (nodeToDelete.isLeftChild()) {
+                            nodeToDelete.parent().setLeft(child);
+                        }
+                        else {
+                            nodeToDelete.parent().setRight(child);
+                        }
+                    }
+                    if (nodeToDelete.color() == Colors.BLACK && child.color() == Colors.BLACK) {
+                        currentlyFixing = child;
+                    }
+                    else {
+                        child.setColor(Colors.BLACK);
+                        currentlyFixing = null;
+                    }
+                } else if (nodeToDelete.color() == Colors.BLACK) {
+                    if (nodeToDelete == root) {
+                        root = null;
+                    }
+                    else {
+                        currentlyFixing = RedBlackTreeNode(null, null, true);
+                        currentlyFixing.setParent(nodeToDelete.parent());
+                        if (nodeToDelete.isLeftChild()) {
+                            nodeToDelete.parent().setLeft(currentlyFixing);
+                        }
+                        else {
+                            nodeToDelete.parent().setRight(currentlyFixing);
+                        }
+                    }
+                } else {
+                    if (nodeToDelete.isLeftChild()) {
+                        nodeToDelete.parent().setLeft(null);
+                    }
+                    else {
+                        nodeToDelete.parent().setRight(null);
+                    }
+                    currentlyFixing = null;
+                }
+            }
+            if (currentlyFixing && currentlyFixing.color() == Colors.RED && !currentlyFixing.fake()) {
+                currentlyFixing.setColor(Colors.BLACK);
+                currentlyFixing = null;
+            }
+        },
+        pushIssueUp: function () {
+            var parent = currentlyFixing.parent();
+            if (currentlyFixing.isLeftChild()) {
+                if (parent.left().fake()) {
+                    parent.setLeft(null);
+                }
+                if (parent.right() != null) {
+                    parent.right().setColor(Colors.RED);
+                }
+            }
+            else {
+                if (parent.right().fake()) {
+                    parent.setRight(null);
+                }
+                if (parent.left() != null) {
+                    parent.left().setColor(Colors.RED);
+                }
+            }
+            currentlyFixing = parent;
+            if (currentlyFixing == root || currentlyFixing.color() == Colors.RED) {
+                currentlyFixing.setColor(Colors.BLACK);
+                currentlyFixing = null;
+            }
+        },
+        rotateRedSibling: function () {
+            var oldCurrFixing = currentlyFixing;
+            if (currentlyFixing.isLeftChild()) {
+                var parent = currentlyFixing.parent()
+                var sibling = parent.right();
+                var nephew = sibling.right();
+                currentlyFixing = nephew;
+                this.leftRotation();
+            }
+            else {
+                var parent = currentlyFixing.parent()
+                var sibling = parent.left();
+                var nephew = sibling.left();
+                currentlyFixing = nephew;
+                this.rightRotation();
+            }
+            currentlyFixing = oldCurrFixing;
+        },
+        rotateRedNephew: function () {
+            var oldCurrFixing = currentlyFixing;
+            var parent = currentlyFixing.parent();
+            var parentColor = parent.color();
+            if (currentlyFixing.isLeftChild()) {
+                var sibling = parent.right();
+                var nephew = sibling.right();
+                if (nephew == null || nephew.color() == Colors.BLACK) {
+                    nephew = sibling.left();
+                }
+                currentlyFixing = nephew;
+                this.leftRotation();
+            }
+            else {
+                var sibling = parent.left();
+                var nephew = sibling.left();
+                if (nephew == null || nephew.color() == Colors.BLACK) {
+                    nephew = sibling.right();
+                }
+                currentlyFixing = nephew;
+                this.rightRotation();
+            }
+            parent.parent().setColor(parentColor);
+            parent.setColor(Colors.BLACK);
+            if (parent.isLeftChild()) {
+                parent.parent().right().setColor(Colors.BLACK);
+            } else {
+                parent.parent().left().setColor(Colors.BLACK);
+            }
+            if (oldCurrFixing.fake()) {
+                if (oldCurrFixing.isLeftChild()) {
+                    oldCurrFixing.parent().setLeft(null);
+                } else {
+                    oldCurrFixing.parent().setRight(null);
+                }
+            }
+            currentlyFixing = null;
         },
         traverse: function () {
             var nodeArray = new Array(size);
@@ -261,7 +464,9 @@ RedBlackTree = function () {
             var writeIndex = 0;
             while (nodes.length > 0) {
                 var node = nodes.pop();
-
+                if (node.fake()) {
+                    continue;
+                }
                 if (node.depth() > depth) {
                     depth = node.depth();
                 }

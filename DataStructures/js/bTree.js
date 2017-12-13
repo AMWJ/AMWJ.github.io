@@ -1,6 +1,6 @@
 // Generates 2-3-4 Tree from a Red/Black Tree
 BTree = function () {
-    var BTreeElement = function (id, value) {
+    var BTreeElement = function (id, value, fake) {
         var node = null;
         var retObj = {
             id: function () {
@@ -8,6 +8,9 @@ BTree = function () {
             },
             value: function (index) {
                 return value;
+            },
+            fake: function (fake) {
+                return fake;
             },
             node: function () {
                 return node;
@@ -37,6 +40,12 @@ BTree = function () {
             },
             getChild: function (index) {
                 return children[index];
+            },
+            lastChild: function () {
+                return children[children.length - 1];
+            },
+            lastElement: function () {
+                return elements[elements.length - 1];
             },
             addElement: function (element) {
                 size++;
@@ -92,6 +101,14 @@ BTree = function () {
     var currentlyFixing = null;
 
     var retObj = {
+        insert: function (id, value) {
+            if (size == 0) {
+                this.insertIntoNull(id, value);
+            }
+            else {
+                this.insertIntoNonNull(id, value);
+            }
+        },
         insertIntoNull: function (id, value) {
             size++;
             currentlyFixing = BTreeElement(id, value);
@@ -99,6 +116,7 @@ BTree = function () {
             newNode.addElement(currentlyFixing);
             currentlyFixing.setNode(newNode);
             root = newNode;
+            currentlyFixing = null;
         },
         insertIntoNonNull: function (id, value) {
             size++;
@@ -178,6 +196,138 @@ BTree = function () {
         clear: function () {
             size = 0;
             root = null;
+            currentlyFixing = null;
+        },
+        deleteNodeAndReplace: function (value) {
+            currentlyFixing = null;
+            var elementToDelete = root.getElement(0);
+            var i;
+            var lastPerfectMatch = null;
+            while (true) {
+                if (elementToDelete.value() == value) {
+                    lastPerfectMatch = elementToDelete;
+                }
+                var indexInNode = elementToDelete.indexInNode();
+                if (elementToDelete.value() > value) {
+                    if (!elementToDelete.node().isLeaf()) {
+                        elementToDelete = elementToDelete.node().getChild(indexInNode).getElement(0);
+                        continue;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                else if (elementToDelete.node().elements() - 1 > indexInNode) {
+                    if (elementToDelete.node().getElement(indexInNode + 1).value() <= value) {
+                        elementToDelete = elementToDelete.node().getElement(indexInNode + 1);
+                        continue;
+                    }
+                }
+                if (!elementToDelete.node().isLeaf()) {
+                    elementToDelete = elementToDelete.node().getChild(indexInNode + 1).getElement(0);
+                    continue;
+                }
+                else {
+                    break;
+                }
+            }
+            elementToDelete = lastPerfectMatch;
+            if (elementToDelete != null) {
+                currentlyFixing = elementToDelete.node();
+                if (!elementToDelete.node().isLeaf()) {
+                    var leftSuccessor = elementToDelete.node().getChild(elementToDelete.indexInNode()).lastElement();
+                    while (!leftSuccessor.node().isLeaf()) {
+                        leftSuccessor = leftSuccessor.node().lastChild().lastElement();
+                    }
+                    currentlyFixing = leftSuccessor.node();
+                    leftSuccessor.node().removeElement(leftSuccessor);
+                    elementToDelete.node().insertElement(elementToDelete.indexInNode(), leftSuccessor);
+                    leftSuccessor.setNode(elementToDelete.node());
+                }
+                elementToDelete.node().removeElement(elementToDelete);
+            }
+            size--;
+        },
+        pushIssueUp: function (rotateLeft) {
+            var parent = currentlyFixing.parent();
+            if (rotateLeft) {
+                var sibling = parent.getChild(parent.indexOfChild(currentlyFixing) - 1);
+                var demoted = parent.getElement(parent.indexOfChild(currentlyFixing) - 1);
+                sibling.addElement(demoted);
+                if (!currentlyFixing.isLeaf()) {
+                    currentlyFixing.getChild(0).setParent(sibling);
+                    sibling.addChild(currentlyFixing.getChild(0));
+                }
+            }
+            else {
+                var sibling = parent.getChild(parent.indexOfChild(currentlyFixing) + 1);
+                var demoted = parent.getElement(parent.indexOfChild(currentlyFixing));
+                sibling.insertElement(0, demoted);
+                if (!currentlyFixing.isLeaf()) {
+                    currentlyFixing.getChild(0).setParent(sibling);
+                    sibling.insertChild(0, currentlyFixing.getChild(0));
+                }
+            }
+            parent.removeElement(demoted);
+            demoted.setNode(sibling);
+            parent.removeChild(currentlyFixing);
+            currentlyFixing = parent;
+
+            if (parent == root && parent.elements() == 0) {
+                currentlyFixing = null;
+                root = sibling;
+                sibling.setParent(null);
+            }
+        },
+        rotateRedSibling: function () {
+        },
+        rotateRedNephew: function (rotateLeft) {
+            var parent = currentlyFixing.parent();
+            if (rotateLeft) {
+                var sibling = parent.getChild(parent.indexOfChild(currentlyFixing) - 1);
+                if (!currentlyFixing.isLeaf()) {
+                    var movedEdge = sibling.lastChild();
+                    sibling.removeChild(movedEdge);
+                    currentlyFixing.insertChild(0, movedEdge);
+                    movedEdge.setParent(currentlyFixing);
+                }
+                var demoted = parent.getElement(parent.indexOfChild(currentlyFixing) - 1);
+                parent.removeElement(demoted);
+                demoted.setNode(currentlyFixing);
+                currentlyFixing.insertElement(0, demoted);
+                var closestSibling = sibling.lastElement();
+                if (sibling.elements() > 2) {
+                    sibling.removeElement(closestSibling);
+                    currentlyFixing.insertElement(0, closestSibling);
+                    closestSibling.setNode(currentlyFixing);
+                    closestSibling = sibling.lastElement();
+                }
+                sibling.removeElement(closestSibling);
+                parent.insertElement(parent.indexOfChild(currentlyFixing) - 1, closestSibling);
+                closestSibling.setNode(parent);
+            } else {
+                var sibling = parent.getChild(parent.indexOfChild(currentlyFixing) + 1);
+                if (!currentlyFixing.isLeaf()) {
+                    var movedEdge = sibling.getChild(0);
+                    sibling.removeChild(movedEdge);
+                    currentlyFixing.addChild(movedEdge);
+                    movedEdge.setParent(currentlyFixing);
+                }
+                var demoted = parent.getElement(parent.indexOfChild(currentlyFixing));
+                parent.removeElement(demoted);
+                demoted.setNode(currentlyFixing);
+                currentlyFixing.addElement(demoted);
+                var closestSibling = sibling.getElement(0);
+                if (sibling.elements() > 2) {
+                    sibling.removeElement(closestSibling);
+                    currentlyFixing.addElement(closestSibling);
+                    closestSibling.setNode(currentlyFixing);
+                    closestSibling = sibling.getElement(0);
+                }
+                sibling.removeElement(closestSibling);
+                parent.insertElement(parent.indexOfChild(currentlyFixing), closestSibling);
+                closestSibling.setNode(parent);
+            }
             currentlyFixing = null;
         },
         traverse: function () {

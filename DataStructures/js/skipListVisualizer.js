@@ -3,6 +3,7 @@
     var visualizedEdges = null;
     var colorFn = function () { return null; };
     redisplaySkipList = function (elements, edges) {
+        var duration = elements == null ? 0 : phase;
         visualizedElements = elements || visualizedElements;
         visualizedEdges = edges || visualizedEdges;
         elements = visualizedElements;
@@ -34,7 +35,7 @@
             .attr("class", "skipListElement");
         newGs.attr("opacity", 0)
             .transition()
-            .duration(phase)
+            .duration(duration)
             .attr("opacity", 1);
         var rects = newGs.append("rect")
             .attr("fill", function (d, i) {
@@ -48,7 +49,7 @@
             .attr("fill", function (d, i) {
                 return colorFn(d.id()) || "#FFFFFF";
             })
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("x", function (d, i) { return i * blockSize + 1; })
             .attr("y", function (d, i) { return bottom - (d.height() + 1) * blockSize; })
             .attr("width", blockSize)
@@ -80,7 +81,7 @@
                 var nodeColor = colorFn(d.id()) || "#FFFFFF";
                 return getContrast(nodeColor) > 127 ? "#000000" : "#FFFFFF";
             })
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("x", function (d, i) { return i * blockSize + blockSize / 2 + 1; })
             .attr("y", function (d, i) {
                 return bottom - blockSize / 2;
@@ -124,10 +125,10 @@
                     return 0;
                 }            })
             .attr("y2", function (d, i) { return bottom - d.height * blockSize - blockSize / 2; })
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("x2", function (d, i) { return d.to.index * blockSize; })
         edgeElements
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("stroke-width", function (d, i) { return blockSize / 15; })
             .attr("x1", function (d, i) {
                 if (d.from) {

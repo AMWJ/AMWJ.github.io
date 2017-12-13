@@ -83,7 +83,9 @@
     }
     window.addEventListener("resize", function () {
         if (dataStructures != null) {
-            refreshTrees(dataStructures);
+            redisplayRedBlackTree();
+            redisplayBTree();
+            redisplaySkipList();
         }
     });
     setBTreeColorFn(nodeColor);

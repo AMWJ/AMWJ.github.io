@@ -4,13 +4,14 @@
     var colorFn = function () { return "black"; };
     var maxDepth = 0;
     redisplayRedBlackTree = function (elements, edges) {
+        var duration = elements == null ? 0 : phase;
         visualizedElements = elements || visualizedElements;
         visualizedEdges = edges || visualizedEdges;
         elements = visualizedElements;
         edges = visualizedEdges;
         $redBlackTree = $(".redBlack");
         var svgWidth = $redBlackTree.width();
-        var svgHeight = $redBlackTree.height();
+        var svgHeight = $redBlackTree.height() - 2;
         var lastElements = {};
         var blockSize = 30.0;
         for (var i = 0; i < elements.length; i++) {
@@ -27,7 +28,7 @@
             var newGs = nodes.enter().append("g")
                 .attr("class", "redBlackTreeElement");
             newGs.attr("opacity", 0)
-                .transition().duration(phase * 3 / 4)
+                .transition().duration(duration * 3 / 4)
                 .attr("opacity", 1);
             var circles = newGs.append("circle")
                 .attr("cx", function (d, i) { return (svgWidth / (Math.pow(2, d.depth()) + 1)) * (d.rowIndex() + 1); })
@@ -84,10 +85,10 @@
                 .text(function (d) { return d.value(); });
 
             svg.selectAll("g").select("circle")
+                .transition().duration(duration * 3 / 4)
                 .attr("fill", function (d, i) {
                     return colorFn(d.id()) || (d.color() ? "#FFCCCC" : "#000000");
                 })
-                .transition().duration(phase * 3 / 4)
                 .attr("cx", function (d, i) { return (svgWidth / (Math.pow(2, d.depth()) + 1)) * (d.rowIndex() + 1); })
                 .attr("cy", function (d, i) {
                     if (maxDepth * blockSize * 3 + blockSize < svgHeight) {
@@ -110,11 +111,11 @@
                 .attr("stroke", "black");
 
             svg.selectAll("g").select("text")
+                .transition().duration(duration * 3 / 4)
                 .attr("fill", function (d) {
                     var nodeColor = colorFn(d.id()) || (d.color() ? "#FFCCCC" : "#000000");
                     return getContrast(nodeColor) > 127 ? "#000000" : "#FFFFFF";
                 })
-                .transition().duration(phase * 3 / 4)
                 .attr("x", function (d, i) { return (svgWidth / (Math.pow(2, d.depth()) + 1)) * (d.rowIndex() + 1); })
                 .attr("y", function (d, i) {
                     if (maxDepth * blockSize * 3 + blockSize < svgHeight) {
@@ -138,7 +139,7 @@
                 })
                 .attr("text-anchor", "middle")
                 .text(function (d) { return d.value(); });
-            nodes.exit().remove();
+            nodes.exit().transition().duration(duration * 1 / 4).attr("opacity", 0).remove();
             svg.selectAll("g")
                 .on("click", function (d, i, obj) {
                     setSelectedElement(d, 0);
@@ -176,8 +177,8 @@
                 .call(function (lines) {
                     lines.moveToBack();
                 })
-                .transition().duration(phase * 3 / 4)
-                .transition().duration(phase * 1 / 4)
+                .transition().duration(duration * 3 / 4)
+                .transition().duration(duration * 1 / 4)
                 .attr("x2", function (d, i) { return (svgWidth / (Math.pow(2, d.to.depth()) + 1)) * (d.to.rowIndex() + 1); })
                 .attr("y2", function (d, i) {
                     if (maxDepth * blockSize * 3 + blockSize < svgHeight) {
@@ -189,7 +190,7 @@
                     }
                 })
             edgeElements
-                .transition().duration(phase * 3 / 4)
+                .transition().duration(duration * 3 / 4)
                 .attr("stroke-width", function (d, i) { return d.depth < 3 ? blockSize / 15 : blockSize / Math.pow(2, d.depth + 1); })
                 .attr("x1", function (d, i) { return (svgWidth / (Math.pow(2, d.from.depth()) + 1)) * (d.from.rowIndex() + 1); })
                 .attr("y1", function (d, i) {
@@ -211,7 +212,7 @@
                         return betweenRows * d.to.depth() + blockSize / 2 + 1;
                     }
                 })
-            edgeElements.exit().transition().duration(phase * 1 / 4).attr("opeacity", 0).remove();
+            edgeElements.exit().transition().duration(duration * 1 / 4).attr("opacity", 0).remove();
         }
     };
     setRedBlackTreeColorFn = function (func) {

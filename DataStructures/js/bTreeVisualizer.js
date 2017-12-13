@@ -3,6 +3,7 @@
     var visualizedEdges = null;
     var colorFn = function () { return null; };
     redisplayBTree = function (elements, edges) {
+        var duration = elements == null ? 0 : phase;
         visualizedElements = elements || visualizedElements;
         visualizedEdges = edges || visualizedEdges;
         elements = visualizedElements;
@@ -16,7 +17,7 @@
             return Math.sqrt(blockSize) * 14 * depth;
         };
         for (var i = 0; i < elements.length; i++) {
-            if (lastElements[elements[i].depth] == null || lastElements[elements[i].node.node().depth()].elementOnRow < elements[i].elementOnRow) {
+            if (lastElements[elements[i].node.node().depth()] == null || lastElements[elements[i].node.node().depth()].elementOnRow < elements[i].elementOnRow) {
                 lastElements[elements[i].node.node().depth()] = elements[i];
             }
             maxDepth = Math.max(maxDepth, elements[i].node.node().depth());
@@ -44,7 +45,7 @@
             .attr("class","bTreeElement");
         newGs.attr("opacity", 0)
             .transition()
-            .duration(phase)
+            .duration(duration)
             .attr("opacity", 1);
         var rects = newGs.append("rect")
             .attr("x", function (d, i) { return rowStartingPoints[d.node.node().depth()] + blockSize * d.elementOnRow + blockSize / 3 * d.indexOnRow + 1; })
@@ -78,7 +79,7 @@
             .attr("fill", function (d, i) {
                 return colorFn(d.node.id()) || "#999999";
             })
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("x", function (d, i) { return rowStartingPoints[d.node.node().depth()] + blockSize * d.elementOnRow + blockSize / 3 * d.indexOnRow + 1; })
             .attr("y", function (d, i) { return rowHeight(d.node.node().depth()); })
             .attr("width", blockSize)
@@ -91,7 +92,7 @@
                 var nodeColor = colorFn(d.node.id()) || "#999999";
                 return getContrast(nodeColor) > 127 ? "#000000" : "#FFFFFF";
             })
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("x", function (d, i) { return rowStartingPoints[d.node.node().depth()] + blockSize * d.elementOnRow + blockSize / 3 * d.indexOnRow + blockSize / 2 + 1; })
             .attr("y", function (d, i) { return rowHeight(d.node.node().depth()) + blockSize / 2; })
             .attr("dy", ".35em")
@@ -122,11 +123,11 @@
             .attr("y1", function (d, i) { return rowHeight(d.depth - 1) + blockSize; })
             .attr("x2", function (d, i) { return rowStartingPoints[d.depth - 1] + blockSize * (d.from.elementOnRow + 1) + blockSize / 3 * d.from.nodeOnRow + 1; })
             .attr("y2", function (d, i) { return rowHeight(d.depth - 1) + blockSize; })
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("x2", function (d, i) { return rowStartingPoints[d.depth] + blockSize * (d.to.firstElement + d.to.lastElement) / 2 + blockSize / 3 * d.to.node + blockSize / 2 + 1; })
             .attr("y2", function (d, i) { return rowHeight(d.depth); });
         edgeElements
-            .transition().duration(phase)
+            .transition().duration(duration)
             .attr("stroke-width", function (d, i) { return blockSize / 15; })
             .attr("x1", function (d, i) { return rowStartingPoints[d.depth - 1] + blockSize * (d.from.elementOnRow + 1) + blockSize / 3 * d.from.nodeOnRow + 1; })
             .attr("y1", function (d, i) { return rowHeight(d.depth - 1) + blockSize; })

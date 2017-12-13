@@ -20,21 +20,21 @@ DataStructures = function () {
         if (incrementId) {
             id++;
         }
-        $(retObj).triggerHandler("bananas");
-        setTimeout(function () {
+        $(retObj).triggerHandler("update");
+        if (phase > 0) {
+            setTimeout(function () {
+                deferred.resolve();
+            }, phase);
+        }
+        else {
             deferred.resolve();
-        }, phase);
+        }
         return deferred.promise();
     }
     var retObj = {
-        insertIntoNull: function (value) {
+        insertValue: function (value) {
             return waitOnEach(function (structure) {
-                structure.insertIntoNull(id, value);
-            }, true);
-        },
-        insertIntoNonNull: function (value) {
-            return waitOnEach(function (structure) {
-                structure.insertIntoNonNull(id, value);
+                structure.insert(id, value);
             }, true);
         },
         leftRotation: function () {
@@ -57,54 +57,92 @@ DataStructures = function () {
                 structure.clear();
             });
         },
+        pushIssueUp: function (goLeft) {
+            return waitOnEach(function (structure) {
+                structure.pushIssueUp(goLeft);
+            });
+        },
+        rotateRedSibling: function () {
+            return waitOnEach(function (structure) {
+                structure.rotateRedSibling();
+            });
+        },
+        rotateRedNephew: function (goLeft) {
+            return waitOnEach(function (structure) {
+                structure.rotateRedNephew(goLeft);
+            });
+        },
         insert: function (value) {
+            console.log("insertNumber(" + value + ");");
             inProgress = true;
             obj = this;
-
-            if (redBlackTree.root() == null) {
-                var promise = obj.insertIntoNull(value);
-                promise.done(function () {
-                    inProgress = false;
-                });
-                return promise;
-            }
-            else {
-                // Insertion
-                return obj.insertIntoNonNull(value).then(function () {
-                    // Rotation/Recoloring
-                    var rebalance = function () {
-                        if (redBlackTree.finger() != null) {
-                            var bottomConsidered = redBlackTree.finger();
-                            var parent = bottomConsidered.parent();
-                            if (!bottomConsidered.color() || !parent.color()) {
-                                return true;
-                            }
-                            var grandparent = parent.parent();
-                            var isParentLeftChild = parent.isLeftChild();
-                            var uncle = isParentLeftChild ? grandparent.right() : grandparent.left();
-                            if (uncle == null || uncle.color() == Colors.BLACK) {
-                                if (isParentLeftChild) {
-                                    // Rotation needed clockwise
-                                    return obj.rightRotation();
-                                }
-                                else {
-                                    // Rotation needed counterclockwise
-                                    return obj.leftRotation();
-                                }
+            // Insertion
+            return obj.insertValue(value).then(function () {
+                // Rotation/Recoloring
+                var rebalance = function () {
+                    if (redBlackTree.finger() != null) {
+                        var bottomConsidered = redBlackTree.finger();
+                        var parent = bottomConsidered.parent();
+                        if (!bottomConsidered.color() || !parent.color()) {
+                            return true;
+                        }
+                        var grandparent = parent.parent();
+                        var isParentLeftChild = parent.isLeftChild();
+                        var uncle = isParentLeftChild ? grandparent.right() : grandparent.left();
+                        if (uncle == null || uncle.color() == Colors.BLACK) {
+                            if (isParentLeftChild) {
+                                // Rotation needed clockwise
+                                return obj.rightRotation();
                             }
                             else {
-                                return obj.promotion().then(function () {
-                                    return rebalance();
-                                });
+                                // Rotation needed counterclockwise
+                                return obj.leftRotation();
                             }
                         }
+                        else {
+                            return obj.promotion().then(function () {
+                                return rebalance();
+                            });
+                        }
                     }
-                    return rebalance();
-                });
-            }
+                }
+                return rebalance();
+            });
         },
         remove: function (value) {
-            structure.deleteNodeAndReplace(value);
+            console.log("removeNumber(" + value + ");");
+            var obj = this;
+            return obj.deleteNodeAndReplace(value).then(function () {
+                var rebalance = function () {
+                    if (redBlackTree.finger() != null) {
+                        if (redBlackTree.finger().isLeftChild()) {
+                            var sibling = redBlackTree.finger().parent().right()
+                        }
+                        else {
+                            var sibling = redBlackTree.finger().parent().left()
+                        }
+                        if (sibling.color() == Colors.RED) {
+                            return obj.rotateRedSibling().then(function () {
+                                return rebalance();
+                            });
+                        }
+                        else if (sibling.color() == Colors.BLACK && (sibling.left() == null || sibling.left().color() == Colors.BLACK) && (sibling.right() == null || sibling.right().color() == Colors.BLACK)) {
+                            return obj.pushIssueUp(sibling.isLeftChild()).then(function () {
+                                return rebalance();
+                            });
+                        }
+                        else {
+                            return obj.rotateRedNephew(sibling.isLeftChild());
+                        }
+                    }
+                };
+                return rebalance();
+            });
+        },
+        deleteNodeAndReplace: function (value) {
+            return waitOnEach(function (structure) {
+                structure.deleteNodeAndReplace(value);
+            });
         },
         traverseRedBlackTree: function () {
             return structures[0].traverse();
